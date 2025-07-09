@@ -20,7 +20,7 @@ class FilmTest {
         film.setDuration(100);
         film.setReleaseDate(LocalDate.of(2000, 1, 1));
 
-        assertEquals("Film(id=1, name=test film, description=description, releaseDate=2000-01-01, duration=100)",
+        assertEquals("Film(id=1, name=test film, description=description, releaseDate=2000-01-01, duration=100, userLikes=[])",
                 film.toString());
         assertEquals(1, film.getId());
         assertEquals("test film", film.getName());
