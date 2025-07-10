@@ -204,7 +204,6 @@ class InMemoryUserStorageTest {
         user1.setName("name1");
         user1.setId(1);
         user1.setFriendsId(friendsList1);
-
         inMemoryUserStorage.addUser(user1);
 
         Set<Integer> friendsList2 = new HashSet<>();
@@ -215,13 +214,51 @@ class InMemoryUserStorageTest {
         user2.setName("name2");
         user2.setId(2);
         user2.setFriendsId(friendsList2);
-
         inMemoryUserStorage.addUser(user2);
+
         inMemoryUserStorage.addFriend(user1.getId(), user2.getId());
 
         assertThat(inMemoryUserStorage.userFriends(1))
                 .isNotNull()
                 .isEqualTo(List.of(user2));
+    }
+
+    @Test
+    public void shouldReturnCommonFriends() {
+        Set<Integer> friendsList1 = new HashSet<>();
+        User user1 = new User();
+        user1.setEmail("test1@test.ru");
+        user1.setBirthday(LocalDate.of(2001, 1, 1));
+        user1.setLogin("login1");
+        user1.setName("name1");
+        user1.setId(1);
+        user1.setFriendsId(friendsList1);
+        inMemoryUserStorage.addUser(user1);
+
+        Set<Integer> friendsList2 = new HashSet<>();
+        User user2 = new User();
+        user2.setEmail("test2@test.ru");
+        user2.setBirthday(LocalDate.of(2002, 2, 2));
+        user2.setLogin("login2");
+        user2.setName("name2");
+        user2.setId(2);
+        user2.setFriendsId(friendsList2);
+        inMemoryUserStorage.addUser(user2);
+
+        User userTest1 = new User();
+        User userTest2 = new User();
+        inMemoryUserStorage.addUser(userTest1);
+        inMemoryUserStorage.addUser(userTest2);
+
+        inMemoryUserStorage.addFriend(user1.getId(), userTest1.getId());
+        inMemoryUserStorage.addFriend(user1.getId(), userTest2.getId());
+        inMemoryUserStorage.addFriend(user2.getId(), userTest1.getId());
+        inMemoryUserStorage.addFriend(user2.getId(), userTest2.getId());
+
+        AssertionsForInterfaceTypes.assertThat(inMemoryUserStorage.commonFriends(user1.getId(), user2.getId()))
+                .isNotNull()
+                .hasSize(2)
+                .contains(userTest1, userTest2);
     }
 
 }

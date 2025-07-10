@@ -24,7 +24,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film getFilmById(int filmId) {
         log.info("Запрос фильма с id {} из FilmStorageImpl", filmId);
         if (!films.containsKey(filmId)) {
-            log.error("Фильм с id " + filmId + " не найден");
+            log.error("Фильм с id {} не найден", filmId);
             throw new NotFoundException("фильм с id " + filmId + " не найден");
         }
         return films.get(filmId);
@@ -54,11 +54,11 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film addLike(int filmId, int userId) {
         if (!films.containsKey(filmId)) {
-            log.error("Фильм с id " + filmId + " не найден");
+            log.error("Фильм с id {} не найден", filmId);
             throw new NotFoundException("фильм с id " + filmId + " не найден");
         }
         if (userStorage.getUserById(userId) == null) {
-            log.error("Пользователь с id " + userId + " не найден");
+            log.error("Пользователь с id {} не найден", userId);
             throw new NotFoundException("пользователь с id " + userId + " не найден");
         }
         Film film = films.get(filmId);
@@ -70,11 +70,11 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film deleteLike(int filmId, int userId) {
         if (!films.containsKey(filmId)) {
-            log.error("Фильм с id " + filmId + " не найден");
+            log.error("Фильм с id {} не найден", filmId);
             throw new NotFoundException("фильм с id " + filmId + " не найден");
         }
         if (userStorage.getUserById(userId) == null) {
-            log.error("Пользователь с id " + userId + " не найден");
+            log.error("Пользователь с id {} не найден", userId);
             throw new NotFoundException("пользователь с id " + userId + " не найден");
         }
         Film film = films.get(filmId);
@@ -84,23 +84,17 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Set<Film> popularFilms(int count) {
+    public List<Film> popularFilms(int count) {
         if (count <= 0) {
             log.error("Значение count не может быть отрицательным или равно 0");
             throw new IllegalArgumentException("значение count не может быть отрицательным или равно 0");
         }
-        if (films.size() <= count) {
-            log.debug("Запрошен топ-{} фильмов в FilmStorageImpl", count);
-            return films.values().stream()
-                    .sorted(Comparator.comparingInt((Film f) -> f.getUserLikes().size()).reversed())
-                    .collect(Collectors.toSet());
-        }
+        Comparator<Film> comparatorByLikes = Comparator.comparingInt((Film f) -> f.getUserLikes().size()).reversed();
         log.debug("Запрошен топ-{} фильмов в FilmStorageImpl", count);
         return films.values().stream()
-                .sorted(Comparator.comparingInt((Film f) ->
-                        f.getUserLikes() == null ? 0 : f.getUserLikes().size()).reversed())
+                .sorted(comparatorByLikes)
                 .limit(count)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
 }

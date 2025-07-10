@@ -158,4 +158,36 @@ class InMemoryFilmStorageTest {
                 .containsExactly(1, "name1", "description1", LocalDate.of(2001, 1, 1), 120, Set.of());
     }
 
+    @Test
+    public void shouldReturnPopularFilmsList() {
+        Film film1 = new Film();
+        film1.setUserLikes(Set.of(1));
+        film1.setDuration(120);
+        film1.setDescription("description1");
+        film1.setName("name1");
+        film1.setReleaseDate(LocalDate.of(2001, 1, 1));
+        film1.setId(1);
+        inMemoryFilmStorage.addFilm(film1);
+
+        Film film2 = new Film();
+        film2.setUserLikes(Set.of(1, 2, 3));
+        film2.setDuration(220);
+        film2.setDescription("description2");
+        film2.setName("name2");
+        film2.setReleaseDate(LocalDate.of(2002, 2, 2));
+        film2.setId(2);
+        inMemoryFilmStorage.addFilm(film2);
+
+        Film testFilm1 = inMemoryFilmStorage.popularFilms(5).get(0);
+        Film testFilm2 = inMemoryFilmStorage.popularFilms(5).get(1);
+
+        assertThat(testFilm1).isEqualTo(film2);
+        assertThat(testFilm2).isEqualTo(film1);
+
+        AssertionsForInterfaceTypes.assertThat(inMemoryFilmStorage.popularFilms(5))
+                .isNotNull()
+                .hasSize(2)
+                .contains(film1, film2);
+    }
+
 }
