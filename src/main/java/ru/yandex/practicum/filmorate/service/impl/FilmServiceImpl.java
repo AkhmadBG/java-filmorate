@@ -19,13 +19,18 @@ public class FilmServiceImpl implements FilmService {
     private final FilmStorage filmStorage;
 
     @Override
+    public Film getFilmById(int filmId) {
+        return filmStorage.getFilmById(filmId);
+    }
+
+    @Override
     public Collection<Film> getAllFilms() {
         return filmStorage.getAllFilms();
     }
 
     @Override
     public Film addFilm(Film film) {
-        log.debug("начало валидации параметров фильма при добавлении нового");
+        log.debug("Начало валидации параметров фильма при добавлении нового");
         AppValidation.filmValidation(film);
         return filmStorage.addFilm(film);
     }
@@ -33,12 +38,30 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public Film updateFilm(Film film) {
         if (!filmStorage.getAllFilms().contains(film)) {
-            log.error("фильм не существует");
+            log.error("Фильм не существует");
             throw new NotFoundException("фильм не существует");
         }
-        log.debug("начало валидации параметров фильма при обновлении существующего");
+        log.debug("Начало валидации параметров фильма при обновлении существующего");
         AppValidation.filmValidation(film);
         return filmStorage.updateFilm(film);
+    }
+
+    @Override
+    public Film addLike(int filmId, int userId) {
+        log.debug("Пользователь с id {} поставил like фильму с id {}", userId, filmId);
+        return filmStorage.addLike(filmId, userId);
+    }
+
+    @Override
+    public Film deleteLike(int filmId, int userId) {
+        log.debug("Пользователь с id {} удалил like у фильма с id {}", userId, filmId);
+        return filmStorage.deleteLike(filmId, userId);
+    }
+
+    @Override
+    public Collection<Film> popularFilms(int count) {
+        log.debug("Запрошен топ-{} фильмов", count);
+        return filmStorage.popularFilms(count);
     }
 
 }

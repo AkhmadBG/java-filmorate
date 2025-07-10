@@ -18,22 +18,49 @@ public class UserController {
 
     @GetMapping
     public Collection<User> getAllUsers() {
-        log.info("запрошен список всех пользователей");
+        log.info("Запрошен список всех пользователей");
         return userService.getAllUsers();
     }
 
     @PostMapping
     public User addUser(@RequestBody User user) {
+        log.info("Запрос на добавление нового пользователя");
         userService.addUser(user);
-        log.info("добавлен новый пользователь с id {}", user.getId());
         return user;
     }
 
     @PutMapping
     public User updateUser(@RequestBody User user) {
         userService.updateUser(user);
-        log.info("пользователь с id {} обновлен", user.getId());
+        log.info("Запрос на обновление пользователя с id {}", user.getId());
         return user;
+    }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    public User addFriend(@PathVariable int id,
+                          @PathVariable int friendId) {
+        log.info("Запрос от пользователя с id {} на добавление в друзья пользователю с id {}", friendId, id);
+        return userService.addFriend(id, friendId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public User deleteFriend(@PathVariable int id,
+                             @PathVariable int friendId) {
+        log.info("Запрос от пользователя с id {} на исключение из друзей пользователя с id {}", friendId, id);
+        return userService.deleteFriend(id, friendId);
+    }
+
+    @GetMapping("/{id}/friends")
+    public Collection<User> userFriends(@PathVariable int id) {
+        log.info("Запрос списка друзей пользователя с id {}", id);
+        return userService.userFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public Collection<User> commonFriends(@PathVariable int id,
+                                          @PathVariable int otherId) {
+        log.info("Запрос списка общих друзей пользователей с id {} и {}", id, otherId);
+        return userService.commonFriends(id, otherId);
     }
 
 }

@@ -20,7 +20,7 @@ class UserTest {
         user.setEmail("test@test.ru");
         user.setBirthday(LocalDate.of(2000, 1, 1));
 
-        assertEquals("User(id=1, email=test@test.ru, login=LoginTest, name=Test, birthday=2000-01-01)", user.toString());
+        assertEquals("User(id=1, email=test@test.ru, login=LoginTest, name=Test, birthday=2000-01-01, friendsId=[])", user.toString());
         assertEquals(1, user.getId());
         assertEquals("Test", user.getName());
         assertEquals("LoginTest", user.getLogin());
