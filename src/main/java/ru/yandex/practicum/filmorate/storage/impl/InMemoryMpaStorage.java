@@ -6,7 +6,9 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.MpaStorage;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -25,7 +27,9 @@ public class InMemoryMpaStorage implements MpaStorage {
 
     @Override
     public Collection<Mpa> getAllMpa() {
-        return mpa.values();
+        return mpa.values().stream()
+                .sorted(Comparator.comparing(Mpa::getId))
+                .collect(Collectors.toList());
     }
 
 }
