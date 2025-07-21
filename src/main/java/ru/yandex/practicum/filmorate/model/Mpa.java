@@ -11,6 +11,6 @@ public class Mpa {
 
     private final Integer id;
 
-    private final String rating;
+    private final String name;
 
 }
