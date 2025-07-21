@@ -30,4 +30,8 @@ public class Film {
 
     private Set<Integer> userLikes = new HashSet<>();
 
+    private Genre genre;
+
+    private Mpa rating;
+
 }
