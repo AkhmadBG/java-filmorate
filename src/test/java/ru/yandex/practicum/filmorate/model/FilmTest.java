@@ -20,9 +20,9 @@ class FilmTest {
         film.setDescription("description");
         film.setDuration(100);
         film.setReleaseDate(LocalDate.of(2000, 1, 1));
-        film.setRating(mpa);
+        film.setMpa(mpa);
 
-        assertEquals("Film(id=1, name=test film, description=description, releaseDate=2000-01-01, duration=100, userLikes=[], rating=Mpa(id=1, name=PG), genres=[])",
+        assertEquals("Film(id=1, name=test film, description=description, releaseDate=2000-01-01, duration=100, userLikes=[], mpa=Mpa(id=1, name=PG), genres=[])",
                 film.toString());
         assertEquals(1, film.getId());
         assertEquals("test film", film.getName());
