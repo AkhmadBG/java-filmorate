@@ -14,13 +14,15 @@ class FilmTest {
     @Test
     void shouldCreateValidFilm() {
         Film film = new Film();
+        Mpa mpa = new Mpa(1, "PG");
         film.setId(1);
         film.setName("test film");
         film.setDescription("description");
         film.setDuration(100);
         film.setReleaseDate(LocalDate.of(2000, 1, 1));
+        film.setRating(mpa);
 
-        assertEquals("Film(id=1, name=test film, description=description, releaseDate=2000-01-01, duration=100, userLikes=[])",
+        assertEquals("Film(id=1, name=test film, description=description, releaseDate=2000-01-01, duration=100, userLikes=[], rating=Mpa(id=1, name=PG), genres=[])",
                 film.toString());
         assertEquals(1, film.getId());
         assertEquals("test film", film.getName());
