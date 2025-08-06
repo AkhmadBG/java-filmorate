@@ -1,13 +1,13 @@
 package ru.yandex.practicum.filmorate.service;
 
-import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.repository.dto.GenreDto;
 
 import java.util.Collection;
 
 public interface GenreServise {
 
-    Genre getGenreById(int genreId);
+    GenreDto getGenreById(int genreId);
 
-    Collection<Genre> getAllGenres();
+    Collection<GenreDto> getAllGenres();
 
 }
