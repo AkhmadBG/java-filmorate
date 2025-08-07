@@ -38,4 +38,5 @@ public class UsersExtractor implements ResultSetExtractor<List<User>> {
 
         return new ArrayList<>(userMap.values());
     }
+
 }

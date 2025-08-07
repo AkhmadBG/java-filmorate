@@ -46,17 +46,19 @@ public class UserController {
     }
 
     @PutMapping("/{userId}/friends/{friendId}")
-    public void addFriends(@PathVariable(value = "userId") int userId,
-                           @PathVariable(value = "friendId") int friendId) {
+    public ResponseEntity<Void> addFriends(@PathVariable(value = "userId") int userId,
+                                           @PathVariable(value = "friendId") int friendId) {
         userService.addFriends(userId, friendId);
         log.info("UserController: пользователи с id {} и id {} добавлены в друзья", userId, friendId);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{userId}/friends/{friendId}")
-    public void removeFriend(@PathVariable(value = "userId") int userId,
-                             @PathVariable(value = "friendId") int friendId) {
+    public ResponseEntity<Void> removeFriend(@PathVariable(value = "userId") int userId,
+                                             @PathVariable(value = "friendId") int friendId) {
         userService.removeFriends(userId, friendId);
         log.info("UserController: пользователи с id {} и id {} удалены из друзей", userId, friendId);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{userId}/friends")

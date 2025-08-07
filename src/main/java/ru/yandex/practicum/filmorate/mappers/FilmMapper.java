@@ -29,7 +29,7 @@ public final class FilmMapper {
         filmDto.setReleaseDate(film.getReleaseDate());
         filmDto.setDuration(film.getDuration());
         filmDto.setLikeUserList(film.getLikeUserList());
-        filmDto.setMpa(film.getMpa());
+        filmDto.setMpa(MpaMapper.mapToMpaDto(film.getMpa()));
         filmDto.setGenres(film.getGenres());
         return filmDto;
     }

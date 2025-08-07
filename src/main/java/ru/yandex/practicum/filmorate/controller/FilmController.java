@@ -46,16 +46,18 @@ public class FilmController {
     }
 
     @PutMapping("/{filmId}/like/{userId}")
-    public void addLike(@PathVariable int filmId, @PathVariable int userId) {
+    public ResponseEntity<Void> addLike(@PathVariable int filmId, @PathVariable int userId) {
         filmService.addLike(filmId, userId);
         log.info("FilmController: пользователю с id {} понравится фильм с id: {}", userId, filmId);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{filmId}/like/{userId}")
-    public void removeLike(@PathVariable(value = "filmId") int filmId,
-                           @PathVariable(value = "userId") int userId) {
+    public ResponseEntity<Void> removeLike(@PathVariable(value = "filmId") int filmId,
+                                           @PathVariable(value = "userId") int userId) {
         filmService.removeLike(filmId, userId);
         log.info("FilmController: пользователю с id {} перестал нравится фильм с id: {}", userId, filmId);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/popular")
