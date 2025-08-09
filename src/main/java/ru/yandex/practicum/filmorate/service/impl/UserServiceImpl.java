@@ -4,71 +4,106 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.mappers.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.repository.UserRepository;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
-import ru.yandex.practicum.filmorate.util.AppValidation;
+import ru.yandex.practicum.filmorate.repository.dto.NewUserRequest;
+import ru.yandex.practicum.filmorate.repository.dto.UpdateUserRequest;
+import ru.yandex.practicum.filmorate.repository.dto.UserDto;
+import ru.yandex.practicum.filmorate.util.UserValidator;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
-@Service
 @RequiredArgsConstructor
+@Service
 public class UserServiceImpl implements UserService {
 
-    private final UserStorage userStorage;
+    private final UserRepository userRepository;
 
     @Override
-    public User getUserById(int userId) {
-        return userStorage.getUserById(userId);
+    public UserDto addUser(NewUserRequest newUserRequest) {
+        UserValidator.validator(newUserRequest);
+        User user = userRepository.addUser(UserMapper.mapToUser(newUserRequest));
+        log.info("UserServiceImpl: добавлен пользователь с id {} ", user.getId());
+        return UserMapper.mapToUserDto(user);
     }
 
     @Override
-    public Collection<User> getAllUsers() {
-        return userStorage.getAllUsers();
-    }
-
-    @Override
-    public User addUser(User user) {
-        log.debug("Начало валидации параметров пользователя при добавлении нового");
-        AppValidation.userValidation(user);
-        return userStorage.addUser(user);
-    }
-
-    @Override
-    public User updateUser(User user) {
-        if (!userStorage.getAllUsers().contains(user)) {
-            log.error("Пользователя не существует");
-            throw new NotFoundException("пользователя не существует");
+    public UserDto updateUser(UpdateUserRequest updateUserRequest) {
+        User user = userRepository.getUserById(updateUserRequest.getId());
+        if (user == null) {
+            throw new NotFoundException("пользователь с id " + updateUserRequest.getId() + " не найден");
         }
-        log.debug("Начало валидации параметров пользователя при обновлении существующего");
-        AppValidation.userValidation(user);
-        return userStorage.updateUser(user);
+        UserMapper.updateUser(user, updateUserRequest);
+        userRepository.updateUser(user);
+        log.info("UserServiceImpl: данные пользователя с id {} обновлены ", user.getId());
+        return UserMapper.mapToUserDto(user);
     }
 
     @Override
-    public User addFriend(int userId, int friendId) {
-        log.debug("Пользователи с id {} и {} теперь друзья", userId, friendId);
-        return userStorage.addFriend(userId, friendId);
+    public List<UserDto> allUsers() {
+        List<User> allUsers = userRepository.allUsers();
+        log.info("UserServiceImpl: запрошен список всех пользователей, всего пользователей {}", allUsers.size());
+        return allUsers.stream()
+                .map(UserMapper::mapToUserDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public User deleteFriend(int userId, int friendId) {
-        log.debug("Пользователи с id {} и {} теперь не друзья", userId, friendId);
-        return userStorage.deleteFriend(userId, friendId);
+    public UserDto getUserById(int userId) {
+        log.info("UserServiceImpl: запрошен пользователь с id {} ", userId);
+        User user = userRepository.getUserById(userId);
+        return UserMapper.mapToUserDto(user);
     }
 
     @Override
-    public List<User> userFriends(int userId) {
-        log.debug("Запрос списка друзей пользователя с id {}", userId);
-        return userStorage.userFriends(userId);
+    public void addFriends(int userId, int friendId) {
+        if (userId == friendId) {
+            throw new ValidationException("UserServiceImpl: попытка добавления пользователя к себе в друзья");
+        }
+        userRepository.addFriendShips(userId, friendId);
+        log.info("UserServiceImpl: пользователи с id " + userId + " и " + friendId + "теперь друзья");
     }
 
     @Override
-    public Collection<User> commonFriends(int userId, int otherId) {
-        log.debug("Запрос списка общих друзей пользователей с id {} и {}", userId, otherId);
-        return userStorage.commonFriends(userId, otherId);
+    public void removeFriends(int userId, int friendId) {
+        if (userId == friendId) {
+            throw new ValidationException("UserServiceImpl: попытка добавления пользователя к себе в друзья");
+        }
+        userRepository.deleteFriendShip(userId, friendId);
+        log.info("UserServiceImpl: пользователи с id " + userId + " и " + friendId + "больше не друзья");
+    }
+
+    @Override
+    public List<UserDto> getFriendsList(int userId) {
+        User user = userRepository.getUserById(userId);
+        List<Integer> friendsId = new ArrayList<>(user.getFriends());
+        log.info("UserServiceImpl: запрошен список друзей пользователя " + userId + " всего их " + friendsId.size());
+        return friendsId.stream()
+                .map(userRepository::getUserById)
+                .map(UserMapper::mapToUserDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UserDto> getCommonFriendsList(int userId, int otherId) {
+        User user = userRepository.getUserById(userId);
+        User otherUser = userRepository.getUserById(otherId);
+        Set<Integer> friendsList = new HashSet<>(user.getFriends());
+        friendsList.retainAll(otherUser.getFriends());
+        List<Integer> commonFriendsList = new ArrayList<>(friendsList);
+        log.info("UserServiceImpl: запрошен список общих друзей пользователей с id " + userId + " и " + otherId);
+        return commonFriendsList.stream()
+                .map(userRepository::getUserById)
+                .map(UserMapper::mapToUserDto)
+                .collect(Collectors.toList());
     }
 
 }

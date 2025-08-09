@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -12,12 +11,14 @@ import java.util.Set;
 @Getter
 @Setter
 @ToString
-@EqualsAndHashCode(of = {"id"})
+@EqualsAndHashCode
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Film {
 
-    private Integer id;
+    private int id;
 
-    @NotNull
     private String name;
 
     @Size(max = 200)
@@ -28,6 +29,12 @@ public class Film {
     @Positive
     private int duration;
 
-    private Set<Integer> userLikes = new HashSet<>();
+    @Builder.Default
+    private Set<Integer> likeUserList = new HashSet<>();
+
+    private Mpa mpa;
+
+    @Builder.Default
+    private Set<Genre> genres = new HashSet<>();
 
 }

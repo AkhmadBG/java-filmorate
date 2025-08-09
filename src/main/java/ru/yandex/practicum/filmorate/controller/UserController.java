@@ -2,65 +2,76 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.repository.dto.NewUserRequest;
+import ru.yandex.practicum.filmorate.repository.dto.UpdateUserRequest;
+import ru.yandex.practicum.filmorate.repository.dto.UserDto;
 
-import java.util.Collection;
+import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/users")
 @RequiredArgsConstructor
+@RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
 
-    @GetMapping
-    public Collection<User> getAllUsers() {
-        log.info("Запрошен список всех пользователей");
-        return userService.getAllUsers();
-    }
-
     @PostMapping
-    public User addUser(@RequestBody User user) {
-        log.info("Запрос на добавление нового пользователя");
-        userService.addUser(user);
-        return user;
+    public ResponseEntity<UserDto> addUser(@RequestBody NewUserRequest newUserRequest) {
+        UserDto userDto = userService.addUser(newUserRequest);
+        log.info("UserController: добавлен новый пользователь: {}", userDto.getId());
+        return ResponseEntity.ok(userDto);
     }
 
-    @PutMapping
-    public User updateUser(@RequestBody User user) {
-        userService.updateUser(user);
-        log.info("Запрос на обновление пользователя с id {}", user.getId());
-        return user;
+    @PutMapping()
+    public ResponseEntity<UserDto> updateUser(@RequestBody UpdateUserRequest updateUserRequest) {
+        UserDto userDto = userService.updateUser(updateUserRequest);
+        log.info("UserController: данные пользователя обновлены: {}", userDto.getId());
+        return ResponseEntity.ok(userDto);
     }
 
-    @PutMapping("/{id}/friends/{friendId}")
-    public User addFriend(@PathVariable int id,
-                          @PathVariable int friendId) {
-        log.info("Запрос от пользователя с id {} на добавление в друзья пользователю с id {}", friendId, id);
-        return userService.addFriend(id, friendId);
+    @GetMapping()
+    public ResponseEntity<List<UserDto>> allUsers() {
+        log.info("UserController: количество всех пользователей: {}", userService.allUsers().size());
+        return ResponseEntity.ok(userService.allUsers());
     }
 
-    @DeleteMapping("/{id}/friends/{friendId}")
-    public User deleteFriend(@PathVariable int id,
-                             @PathVariable int friendId) {
-        log.info("Запрос от пользователя с id {} на исключение из друзей пользователя с id {}", friendId, id);
-        return userService.deleteFriend(id, friendId);
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserDto> getUser(@PathVariable(value = "userId") int userId) {
+        log.info("UserController: запрошен пользователь с id: {}", userId);
+        return ResponseEntity.ok(userService.getUserById(userId));
     }
 
-    @GetMapping("/{id}/friends")
-    public Collection<User> userFriends(@PathVariable int id) {
-        log.info("Запрос списка друзей пользователя с id {}", id);
-        return userService.userFriends(id);
+    @PutMapping("/{userId}/friends/{friendId}")
+    public ResponseEntity<Void> addFriends(@PathVariable(value = "userId") int userId,
+                                           @PathVariable(value = "friendId") int friendId) {
+        userService.addFriends(userId, friendId);
+        log.info("UserController: пользователи с id {} и id {} добавлены в друзья", userId, friendId);
+        return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{id}/friends/common/{otherId}")
-    public Collection<User> commonFriends(@PathVariable int id,
-                                          @PathVariable int otherId) {
-        log.info("Запрос списка общих друзей пользователей с id {} и {}", id, otherId);
-        return userService.commonFriends(id, otherId);
+    @DeleteMapping("/{userId}/friends/{friendId}")
+    public ResponseEntity<Void> removeFriend(@PathVariable(value = "userId") int userId,
+                                             @PathVariable(value = "friendId") int friendId) {
+        userService.removeFriends(userId, friendId);
+        log.info("UserController: пользователи с id {} и id {} удалены из друзей", userId, friendId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{userId}/friends")
+    public ResponseEntity<List<UserDto>> getFriendsList(@PathVariable(value = "userId") int userId) {
+        log.info("UserController: запрошен пользователь с id: {}", userId);
+        return ResponseEntity.ok(userService.getFriendsList(userId));
+    }
+
+    @GetMapping("/{userId}/friends/common/{otherId}")
+    public ResponseEntity<List<UserDto>> getCommonFriendsList(@PathVariable(value = "userId") int userId,
+                                                              @PathVariable(value = "otherId") int otherId) {
+        log.info("UserController: запрошен список общих друзей пользователей с id {} и id {}", userId, otherId);
+        return ResponseEntity.ok(userService.getCommonFriendsList(userId, otherId));
     }
 
 }
