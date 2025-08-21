@@ -23,4 +23,5 @@ public interface FilmService {
 
     Set<FilmDto> getTopFilms(int count);
 
+    List<FilmDto> searchFilms(String query, String by);
 }

@@ -22,4 +22,5 @@ public interface FilmRepository {
 
     List<Film> getTopPopular(int count);
 
+    List<Film> search(String query, String by);
 }

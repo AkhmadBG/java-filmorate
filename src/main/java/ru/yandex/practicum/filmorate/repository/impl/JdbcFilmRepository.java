@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mappers.FilmExtractor;
+import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.mappers.FilmsExtractor;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -212,6 +213,55 @@ public class JdbcFilmRepository implements FilmRepository {
                 .sorted(Comparator.comparingInt((Film film) ->
                         film.getLikeUserList() != null ? film.getLikeUserList().size() : 0).reversed())
                 .limit(count)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Film> search(String query, String by) {
+        String baseSql = """
+            SELECT f.film_id,
+            f.name AS film_name,
+            f.description,
+            f.release_date,
+            f.duration,
+            r.rating_id,
+            r.name AS rating_name,
+            l.user_id AS like_user_id,
+            g.genre_id,
+            g.name AS genre_name,
+            FROM films f
+            LEFT JOIN rating_mpa AS r ON f.rating_id = r.rating_id
+            LEFT JOIN films_genres AS fg ON f.film_id = fg.film_id
+            LEFT JOIN genres AS g ON fg.genre_id = g.genre_id
+            LEFT JOIN directors d ON f.director_id = d.director_id
+            LEFT JOIN likes l ON f.film_id = l.film_id
+            WHERE
+        """;
+
+        boolean searchByTitle = by.contains("title");
+        boolean searchByDirector = by.contains("director");
+
+        StringBuilder sql = new StringBuilder(baseSql);
+
+        if (searchByTitle && searchByDirector) {
+            sql.append(" LOWER(film_name) LIKE :query OR LOWER(d.name) LIKE :query ");
+        } else if (searchByTitle) {
+            sql.append(" LOWER(film_name) LIKE :query ");
+        } else if (searchByDirector) {
+            sql.append(" LOWER(d.name) LIKE :query ");
+        } else {
+            return List.of();
+        }
+
+        sql.append(" GROUP BY f.film_id ");
+
+        Map<String, Object> params = Map.of("query", "%" + query.toLowerCase() + "%");
+
+        List<Film> films = namedJdbc.query(sql.toString(), params, new FilmsExtractor());
+        return films.stream()
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparingInt((Film film) ->
+                        film.getLikeUserList() != null ? film.getLikeUserList().size() : 0).reversed())
                 .collect(Collectors.toList());
     }
 
