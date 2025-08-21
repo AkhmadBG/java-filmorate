@@ -20,6 +20,6 @@ public interface FilmRepository {
 
     void removeLike(int filmId, int userId);
 
-    List<Film> getTopPopular(int count);
+    List<Film> getTopPopular(int count, Integer genreId, Integer year);
 
 }

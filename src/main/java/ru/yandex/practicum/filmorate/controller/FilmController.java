@@ -61,9 +61,11 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public ResponseEntity<Set<FilmDto>> getTopFilms(@RequestParam(defaultValue = "10") int count) {
-        log.info("FilmController: запрошен топ {} фильмов", count);
-        return ResponseEntity.ok(filmService.getTopFilms(count));
+    public ResponseEntity<Set<FilmDto>> getTopFilms(@RequestParam(defaultValue = "10") int count,
+                                                    @RequestParam(required = false) Integer genreId,
+                                                    @RequestParam(required = false) Integer year) {
+        log.info("FilmController: запрошен топ {} фильмов с параметрами({},{})", count,genreId,year);
+        return ResponseEntity.ok(filmService.getTopFilms(count, genreId, year));
     }
 
 }

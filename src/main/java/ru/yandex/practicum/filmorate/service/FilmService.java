@@ -21,6 +21,6 @@ public interface FilmService {
 
     void removeLike(int filmId, int userId);
 
-    Set<FilmDto> getTopFilms(int count);
+    Set<FilmDto> getTopFilms(int count, Integer genreId, Integer year);
 
 }

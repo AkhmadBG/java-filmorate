@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.dto.NewUserRequest;
 import ru.yandex.practicum.filmorate.repository.dto.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.repository.dto.UserDto;
