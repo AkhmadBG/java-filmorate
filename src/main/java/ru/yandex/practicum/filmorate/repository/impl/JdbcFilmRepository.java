@@ -2,12 +2,14 @@ package ru.yandex.practicum.filmorate.repository.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.mappers.CommonFilmsExtractor;
 import ru.yandex.practicum.filmorate.mappers.FilmExtractor;
 import ru.yandex.practicum.filmorate.mappers.FilmsExtractor;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -213,6 +215,46 @@ public class JdbcFilmRepository implements FilmRepository {
                         film.getLikeUserList() != null ? film.getLikeUserList().size() : 0).reversed())
                 .limit(count)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Film> getCommonFilms(int userId, int friendId) {
+        log.info("FilmRepository: поиск общих фильмов для userId={} и friendId={}", userId, friendId);
+        String sql = "SELECT " +
+                "f.film_id, " +
+                "f.name AS film_name, " +
+                "f.description, " +
+                "f.release_date, " +
+                "f.duration, " +
+                "r.rating_id, " +
+                "r.name AS rating_name, " +
+                "g.genre_id, " +
+                "g.name AS genre_name, " +
+                "(SELECT COUNT(*) FROM likes WHERE film_id = f.film_id) AS likes_count " +
+                "FROM films AS f " +
+                "LEFT JOIN rating_mpa AS r ON f.rating_id = r.rating_id " +
+                "LEFT JOIN films_genres AS fg ON f.film_id = fg.film_id " +
+                "LEFT JOIN genres AS g ON fg.genre_id = g.genre_id " +
+                "WHERE f.film_id IN (" +
+                "    SELECT l1.film_id " +
+                "    FROM likes l1 " +
+                "    JOIN likes l2 ON l1.film_id = l2.film_id " +
+                "    WHERE l1.user_id = :userId AND l2.user_id = :friendId" +
+                ") " +
+                "ORDER BY likes_count DESC, f.film_id";
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("userId", userId)
+                .addValue("friendId", friendId);
+        try {
+            List<Film> films = namedJdbc.query(sql, params, new CommonFilmsExtractor());
+            log.info("FilmRepository: найдено {} общих фильмов для userId={} и friendId={}",
+                    films.size(), userId, friendId);
+            return films;
+        } catch (DataAccessException ex) {
+            log.error("FilmRepository: ошибка при поиске общих фильмов для userId={} и friendId={}", userId, friendId, ex);
+            throw new RuntimeException("Ошибка чтения из БД при поиске общих фильмов", ex);
+        }
     }
 
 }
