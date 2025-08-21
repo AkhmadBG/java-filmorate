@@ -4,12 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.repository.dto.FilmDto;
 import ru.yandex.practicum.filmorate.repository.dto.NewFilmRequest;
 import ru.yandex.practicum.filmorate.repository.dto.UpdateFilmRequest;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RestController
@@ -64,7 +65,7 @@ public class FilmController {
     public ResponseEntity<Set<FilmDto>> getTopFilms(@RequestParam(defaultValue = "10") int count,
                                                     @RequestParam(required = false) Integer genreId,
                                                     @RequestParam(required = false) Integer year) {
-        log.info("FilmController: запрошен топ {} фильмов с параметрами({},{})", count,genreId,year);
+        log.info("FilmController: запрошен топ {} фильмов с параметрами({},{})", count, genreId, year);
         return ResponseEntity.ok(filmService.getTopFilms(count, genreId, year));
     }
 
