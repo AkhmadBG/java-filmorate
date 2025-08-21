@@ -13,9 +13,7 @@ import ru.yandex.practicum.filmorate.repository.dto.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.util.FilmValidator;
 
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -83,6 +81,14 @@ public class FilmServiceImpl implements FilmService {
         log.debug("FilmServiceImpl: запрос в сервис: userId={}, friendId={}", userId, friendId);
         List<Film> commonFilms = filmRepository.getCommonFilms(userId, friendId);
         return commonFilms.stream()
+                .map(FilmMapper::mapToFilmDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<FilmDto> searchFilms(String query, String by) {
+        List<Film> searchFilms = filmRepository.search(query, by);
+        return searchFilms.stream()
                 .map(FilmMapper::mapToFilmDto)
                 .collect(Collectors.toList());
     }

@@ -66,6 +66,13 @@ public class FilmController {
         log.info("FilmController: запрошен топ {} фильмов", count);
         return ResponseEntity.ok(filmService.getTopFilms(count));
     }
+    @GetMapping("/search")
+    public List<FilmDto> searchFilms(
+            @RequestParam String query,
+            @RequestParam String by
+    ) {
+        return filmService.searchFilms(query, by);
+    }
 
     @GetMapping("/common")
     public List<FilmDto> getCommonFilms(@RequestParam int userId,
