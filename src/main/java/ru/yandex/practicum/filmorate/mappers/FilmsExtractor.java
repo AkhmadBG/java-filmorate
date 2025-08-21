@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.mappers;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -14,7 +15,7 @@ public class FilmsExtractor implements ResultSetExtractor<List<Film>> {
 
     @Override
     public List<Film> extractData(ResultSet rs) throws SQLException, DataAccessException {
-        Map<Integer, Film> filmMap = new HashMap<>();
+        Map<Integer, Film> filmMap = new LinkedHashMap<>();
 
         while (rs.next()) {
             int filmId = rs.getInt("film_id");
@@ -30,6 +31,7 @@ public class FilmsExtractor implements ResultSetExtractor<List<Film>> {
                         .likeUserList(new HashSet<>())
                         .mpa(new Mpa(rs.getInt("rating_id"), rs.getString("rating_name")))
                         .genres(new HashSet<>())
+                        .directors(new HashSet<>())
                         .build();
                 filmMap.put(filmId, film);
             }
@@ -43,6 +45,12 @@ public class FilmsExtractor implements ResultSetExtractor<List<Film>> {
             if (!rs.wasNull()) {
                 String genreName = rs.getString("genre_name");
                 film.getGenres().add(new Genre(genreId, genreName));
+            }
+
+            int directorId = rs.getInt("director_id");
+            if (!rs.wasNull()) {
+                String directorName = rs.getString("director_name");
+                film.getDirectors().add(new Director(directorId, directorName));
             }
         }
 
