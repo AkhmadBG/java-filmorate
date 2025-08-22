@@ -29,7 +29,7 @@ public class Review {
 
     private Integer useful;
 
-    private Map<Long, Boolean> userReactions;
+    private Map<Integer, Boolean> userReactions;
 
 
     public Review() {
