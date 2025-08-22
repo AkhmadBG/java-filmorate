@@ -19,12 +19,12 @@ public class ReviewValidator {
         }
 
         if (request.getIsPositive() == null) {
-            throw new ValidationException("ReviewValidator: Тип отзыва не может быть пустым");
+            throw new NotFoundException("ReviewValidator: Тип отзыва не может быть пустым");
         }
 
 
         if (request.getUserId() < 1 || request.getFilmId() < 1) {
-            throw new NotFoundException("ReviewValidator: Пользлватель или фильм не найден");
+            throw new NotFoundException("ReviewValidator: id не может быть меньше 1");
         }
     }
 }
