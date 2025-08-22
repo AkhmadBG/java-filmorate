@@ -18,7 +18,7 @@ import java.util.List;
 public class ReviewController {
     private final ReviewService reviewService;
 
-    // POST /reviews
+
     @PostMapping
     public ReviewDto createReview(@RequestBody NewReviewRequest request) {
         log.info("Получен запрос на добавление отзыва");
