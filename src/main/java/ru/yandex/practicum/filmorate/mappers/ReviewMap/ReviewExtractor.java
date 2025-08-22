@@ -26,7 +26,7 @@ public class ReviewExtractor implements ResultSetExtractor<Review> {
                 .userReactions(new HashMap<>())
                 .build();
 
-        // Обрабатываем первую реакцию
+
         long reactionUserId = rs.getLong("reaction_user_id");
         if (!rs.wasNull()) {
             Boolean isLike = rs.getBoolean("is_like");
