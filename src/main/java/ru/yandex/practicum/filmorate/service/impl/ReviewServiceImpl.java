@@ -93,7 +93,7 @@ public class ReviewServiceImpl implements ReviewService {
     public void addLikeReview(int reviewId, int userId) {
         Review review = reviewRepository.getReviewById(reviewId);
         if (review == null) throw new NotFoundException("Отзыв не найден");
-        if (userRepository.getUserById(userId) == null) throw new NotFoundException("Пльзователь не найден");
+        if (userRepository.getUserById(userId) == null) throw new NotFoundException("Пользователь не найден");
         reviewRepository.addLikeReview(reviewId, userId);
         log.info("ReviewServiceImpl: пользователь {} лайкнул отзыв {}", userId, reviewId);
     }
@@ -102,7 +102,7 @@ public class ReviewServiceImpl implements ReviewService {
     public void addDislikeReview(int reviewId, int userId) {
         Review review = reviewRepository.getReviewById(reviewId);
         if (review == null) throw new NotFoundException("Отзыв не найден");
-        if (userRepository.getUserById(userId) == null) throw new NotFoundException("Пльзователь не найден");
+        if (userRepository.getUserById(userId) == null) throw new NotFoundException("Пользователь не найден");
         reviewRepository.addDislikeReview(reviewId, userId);
         log.info("ReviewServiceImpl: пользователь {} дизлайкнул отзыв {}", userId, reviewId);
     }
@@ -111,7 +111,7 @@ public class ReviewServiceImpl implements ReviewService {
     public void deleteLikeReview(int reviewId, int userId) {
         Review review = reviewRepository.getReviewById(reviewId);
         if (review == null) throw new NotFoundException("Отзыв не найден");
-        if (userRepository.getUserById(userId) == null) throw new NotFoundException("Пльзователь не найден");
+        if (userRepository.getUserById(userId) == null) throw new NotFoundException("Пользователь не найден");
         reviewRepository.deleteLikeReview(reviewId, userId);
         log.info("ReviewServiceImpl: пользователь {} убрал лайк с отзыва {}", userId, reviewId);
     }
@@ -120,7 +120,7 @@ public class ReviewServiceImpl implements ReviewService {
     public void deleteDislikeReview(int reviewId, int userId) {
         Review review = reviewRepository.getReviewById(reviewId);
         if (review == null) throw new NotFoundException("Отзыв не найден");
-        if (userRepository.getUserById(userId) == null) throw new NotFoundException("Пльзователь не найден");
+        if (userRepository.getUserById(userId) == null) throw new NotFoundException("Пользователь не найден");
         reviewRepository.deleteDislikeReview(reviewId, userId);
         log.info("ReviewServiceImpl: пользователь {} убрал дизлайк с отзыва {}", userId, reviewId);
     }

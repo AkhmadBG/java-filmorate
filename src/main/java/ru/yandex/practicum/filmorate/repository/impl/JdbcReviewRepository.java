@@ -2,13 +2,14 @@ package ru.yandex.practicum.filmorate.repository.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.mappers.ReviewMap.ReviewExtractor;
+import ru.yandex.practicum.filmorate.mappers.ReviewMap.ReviewsExtractor;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.repository.ReviewRepository;
 
@@ -75,34 +76,37 @@ public class JdbcReviewRepository implements ReviewRepository {
 
     @Override
     public List<Review> getReviewsByFilmId(int filmId, int count) {
+        if (count <= 0) {
+            count = 10;
+        }
+
         String sql;
         MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("count", count);
 
         if (filmId == 0) {
-            sql = "SELECT * FROM reviews ORDER BY useful DESC LIMIT :count";
-            if (count == 0) {
-                count = 10;
-            }
-            params.addValue("count", count);
+            sql = """
+                    SELECT r.review_id, r.content, r.is_positive, r.user_id, r.film_id, r.useful,
+                           rr.user_id AS reaction_user_id, rr.is_like
+                    FROM reviews r
+                    LEFT JOIN review_reactions rr ON r.review_id = rr.review_id
+                    ORDER BY r.useful DESC
+                    LIMIT :count
+                    """;
         } else {
-            sql = "SELECT * FROM reviews WHERE film_id = :film_id ORDER BY useful DESC LIMIT :count";
+            sql = """
+                    SELECT r.review_id, r.content, r.is_positive, r.user_id, r.film_id, r.useful,
+                           rr.user_id AS reaction_user_id, rr.is_like
+                    FROM reviews r
+                    LEFT JOIN review_reactions rr ON r.review_id = rr.review_id
+                    WHERE r.film_id = :film_id
+                    ORDER BY r.useful DESC
+                    LIMIT :count
+                    """;
             params.addValue("film_id", filmId);
-            if (count == 0) {
-                count = 10;
-            }
-            params.addValue("count", count);
         }
-        return namedJdbc.query(sql, params, (rs, rowNum) -> {
-            Review review = new Review();
-            review.setReviewId(rs.getInt("review_id"));
-            review.setContent(rs.getString("content"));
-            review.setIsPositive(rs.getBoolean("is_positive"));
-            review.setUserId(rs.getInt("user_id"));
-            review.setFilmId(rs.getInt("film_id"));
-            review.setUseful(rs.getInt("useful"));
-            review.setUserReactions(new HashMap<>());
-            return review;
-        });
+
+        return namedJdbc.query(sql, params, new ReviewsExtractor());
     }
 
     @Override
@@ -203,80 +207,28 @@ public class JdbcReviewRepository implements ReviewRepository {
 
     @Override
     public Review getReviewById(int reviewId) {
-        String sql = "SELECT r.review_id, r.content, r.is_positive, r.user_id, r.film_id, r.useful " +
-                "FROM reviews r WHERE r.review_id = :review_id";
+        String sql = """
+                SELECT r.review_id, r.content, r.is_positive, r.user_id, r.film_id, r.useful,
+                       rr.user_id AS reaction_user_id, rr.is_like
+                FROM reviews r
+                LEFT JOIN review_reactions rr ON r.review_id = rr.review_id
+                WHERE r.review_id = :review_id
+                """;
 
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("review_id", reviewId);
 
-        try {
-            Review review = namedJdbc.queryForObject(sql, params, (rs, rowNum) -> {
-                Review r = new Review();
-                r.setReviewId(rs.getInt("review_id"));
-                r.setContent(rs.getString("content"));
-                r.setIsPositive(rs.getBoolean("is_positive"));
-                r.setUserId(rs.getInt("user_id"));
-                r.setFilmId(rs.getInt("film_id"));
-                r.setUseful(rs.getInt("useful"));
-                return r;
-            });
+        Review review = namedJdbc.query(sql, params, new ReviewExtractor());
 
-
-            // Подтягиваем реакции
-            String sqlReactions = "SELECT user_id, is_like FROM review_reactions WHERE review_id = :review_id";
-            Map<Long, Boolean> reactions = namedJdbc.query(sqlReactions, params, rs -> {
-                Map<Long, Boolean> map = new HashMap<>();
-                while (rs.next()) {
-                    map.put(rs.getLong("user_id"), rs.getBoolean("is_like"));
-                }
-                return map;
-            });
-
-            if (review != null) {
-                review.setUserReactions(reactions);
-            }
-
-            return review;
-        } catch (EmptyResultDataAccessException e) {
+        if (review == null) {
             throw new NotFoundException("Отзыв с id " + reviewId + " не найден");
         }
 
+        return review;
     }
 
     @Override
     public List<Review> getAllReviews(int count) {
-        if (count <= 0) {
-            count = 10; // значение по умолчанию
-        }
-
-        String sql = "SELECT * FROM reviews ORDER BY useful DESC LIMIT :count";
-        MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("count", count);
-
-        return namedJdbc.query(sql, params, (rs, rowNum) -> {
-            Review review = new Review();
-            review.setReviewId(rs.getInt("review_id"));
-            review.setContent(rs.getString("content"));
-            review.setIsPositive(rs.getBoolean("is_positive"));
-            review.setUserId(rs.getInt("user_id"));
-            review.setFilmId(rs.getInt("film_id"));
-            review.setUseful(rs.getInt("useful"));
-
-            // подтягиваем реакции
-            String sqlReactions = "SELECT user_id, is_like FROM review_reactions WHERE review_id = :review_id";
-            MapSqlParameterSource reactionParams = new MapSqlParameterSource()
-                    .addValue("review_id", review.getReviewId());
-            Map<Long, Boolean> reactions = namedJdbc.query(sqlReactions, reactionParams, rsReactions -> {
-                Map<Long, Boolean> map = new HashMap<>();
-                while (rsReactions.next()) {
-                    map.put(rsReactions.getLong("user_id"), rsReactions.getBoolean("is_like"));
-                }
-                return map;
-            });
-            review.setUserReactions(reactions);
-
-            return review;
-        });
-
+        return getReviewsByFilmId(0, count);
     }
 }
