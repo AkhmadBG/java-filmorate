@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.repository;
 
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.UsersLikesFilms;
 
 import java.util.List;
 
@@ -19,5 +20,7 @@ public interface UserRepository {
     void deleteFriendShip(int userId, int friendId);
 
     void updateUser(User user);
+
+    List<UsersLikesFilms> getUsersLikesFilmsIds();
 
 }

@@ -7,7 +7,9 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mappers.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.repository.FilmRepository;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
+import ru.yandex.practicum.filmorate.repository.dto.FilmDto;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.repository.dto.NewUserRequest;
 import ru.yandex.practicum.filmorate.repository.dto.UpdateUserRequest;
@@ -26,6 +28,7 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final FilmRepository filmRepository;
 
     @Override
     public UserDto addUser(NewUserRequest newUserRequest) {
@@ -104,6 +107,11 @@ public class UserServiceImpl implements UserService {
                 .map(userRepository::getUserById)
                 .map(UserMapper::mapToUserDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<FilmDto> getFilmsRecommendations(int userId) {
+        return List.of();
     }
 
 }

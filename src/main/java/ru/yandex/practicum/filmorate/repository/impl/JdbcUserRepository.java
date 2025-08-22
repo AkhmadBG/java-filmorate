@@ -10,7 +10,9 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mappers.UserExtractor;
 import ru.yandex.practicum.filmorate.mappers.UsersExtractor;
+import ru.yandex.practicum.filmorate.mappers.UsersLikesFilmsExtractor;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.UsersLikesFilms;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
 
 import java.util.List;
@@ -138,6 +140,18 @@ public class JdbcUserRepository implements UserRepository {
         } else {
             throw new RuntimeException("UserRepository: не удалось сохранить пользователя: id не сгенерирован");
         }
+    }
+
+    @Override
+    public List<UsersLikesFilms> getUsersLikesFilmsIds() {
+        String queryUsersLikesFilms = "SELECT u.*, l.film_id " +
+                "FROM users AS u " +
+                "LEFT JOIN likes AS l ON u.user_id = l.user_id";
+        List<UsersLikesFilms> usersLikesFilms = namedJdbc.query(queryUsersLikesFilms, new UsersLikesFilmsExtractor());
+        if (usersLikesFilms == null) {
+            throw new NotFoundException("FilmRepository: запрошен список пользователей и идентификаторы понравившихся фильмов");
+        }
+        return usersLikesFilms;
     }
 
 }
