@@ -11,7 +11,7 @@ public class ReviewValidator {
     public static void validator(NewReviewRequest request) {
 
         if (request == null) {
-            throw new NotFoundException("ReviewValidator: Отзыв не найден");
+            throw new ValidationException("ReviewValidator: Отзыв не найден");
         }
 
         if (request.getContent() == null || request.getContent().isBlank()) {
@@ -19,12 +19,24 @@ public class ReviewValidator {
         }
 
         if (request.getIsPositive() == null) {
-            throw new NotFoundException("ReviewValidator: Тип отзыва не может быть пустым");
+            throw new ValidationException("ReviewValidator: Тип отзыва не может быть пустым");
         }
 
 
-        if (request.getUserId() < 1 || request.getFilmId() < 1) {
-            throw new NotFoundException("ReviewValidator: id не может быть меньше 1");
+        if (request.getUserId() == null) {
+            throw new ValidationException("Не указан пользователь или пользователь не найден");
         }
+        if (request.getUserId() <= 0) {
+            throw new NotFoundException("Id не может быть отрицательным числом");
+        }
+
+        if (request.getFilmId() == null) {
+            throw new ValidationException("Не указан фильм или фильм не найден");
+        }
+        if (request.getFilmId() <= 0) {
+            throw new NotFoundException("Id не может быть отрицательным числом");
+        }
+
+
     }
 }

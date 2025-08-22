@@ -2,11 +2,13 @@ package ru.yandex.practicum.filmorate.repository.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.repository.ReviewRepository;
 
@@ -46,9 +48,8 @@ public class JdbcReviewRepository implements ReviewRepository {
 
     @Override
     public void updateReview(Review review) {
-        String sql = "UPDATE reviews SET content = :content, is_positive = :is_positive, useful = :useful" +
+        String sql = "UPDATE reviews SET content = :content, is_positive = :is_positive, useful = :useful " +
                 "WHERE review_id = :review_id";
-
 
         Map<String, Object> params = new HashMap<>();
         params.put("content", review.getContent());
@@ -208,32 +209,38 @@ public class JdbcReviewRepository implements ReviewRepository {
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("review_id", reviewId);
 
-        Review review = namedJdbc.queryForObject(sql, params, (rs, rowNum) -> {
-            Review r = new Review();
-            r.setReviewId(rs.getInt("review_id"));
-            r.setContent(rs.getString("content"));
-            r.setIsPositive(rs.getBoolean("is_positive"));
-            r.setUserId(rs.getInt("user_id"));
-            r.setFilmId(rs.getInt("film_id"));
-            r.setUseful(rs.getInt("useful"));
-            return r;
-        });
+        try {
+            Review review = namedJdbc.queryForObject(sql, params, (rs, rowNum) -> {
+                Review r = new Review();
+                r.setReviewId(rs.getInt("review_id"));
+                r.setContent(rs.getString("content"));
+                r.setIsPositive(rs.getBoolean("is_positive"));
+                r.setUserId(rs.getInt("user_id"));
+                r.setFilmId(rs.getInt("film_id"));
+                r.setUseful(rs.getInt("useful"));
+                return r;
+            });
 
-        // Подтягиваем реакции
-        String sqlReactions = "SELECT user_id, is_like FROM review_reactions WHERE review_id = :review_id";
-        Map<Long, Boolean> reactions = namedJdbc.query(sqlReactions, params, rs -> {
-            Map<Long, Boolean> map = new HashMap<>();
-            while (rs.next()) {
-                map.put(rs.getLong("user_id"), rs.getBoolean("is_like"));
+
+            // Подтягиваем реакции
+            String sqlReactions = "SELECT user_id, is_like FROM review_reactions WHERE review_id = :review_id";
+            Map<Long, Boolean> reactions = namedJdbc.query(sqlReactions, params, rs -> {
+                Map<Long, Boolean> map = new HashMap<>();
+                while (rs.next()) {
+                    map.put(rs.getLong("user_id"), rs.getBoolean("is_like"));
+                }
+                return map;
+            });
+
+            if (review != null) {
+                review.setUserReactions(reactions);
             }
-            return map;
-        });
 
-        if (review != null) {
-            review.setUserReactions(reactions);
+            return review;
+        } catch (EmptyResultDataAccessException e) {
+            throw new NotFoundException("Отзыв с id " + reviewId + " не найден");
         }
 
-        return review;
     }
 
     @Override

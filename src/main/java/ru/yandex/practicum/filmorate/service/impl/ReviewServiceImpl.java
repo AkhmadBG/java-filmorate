@@ -28,7 +28,9 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public ReviewDto createReview(NewReviewRequest request) {
+
         ReviewValidator.validator(request);
+
         if (userRepository.getUserById(request.getUserId()) == null) {
             throw new NotFoundException("Пользователь с id " + request.getUserId() + " не найден");
         }
@@ -43,14 +45,14 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public ReviewDto updateReview(UpdateReviewRequest request) {
-        Review r = reviewRepository.getReviewById(request.getReviewId());
-        if (r == null) {
+        Review review = reviewRepository.getReviewById(request.getReviewId());
+        if (review == null) {
             throw new NotFoundException("Отзыв не найден");
         }
-        Review review = reviewRepository.getReviewById(request.getReviewId());
+
         ReviewMapper.updateReview(review, request);
         reviewRepository.updateReview(review);
-        log.info("ReviewServiceImpl: отзыв  с id {} обновлен", review.getReviewId());
+        log.info("ReviewServiceImpl: отзыв с id {} обновлен", review.getReviewId());
         return ReviewMapper.mapToReviewDto(review);
     }
 

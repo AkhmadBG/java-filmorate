@@ -1,11 +1,10 @@
 package ru.yandex.practicum.filmorate.model;
 
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,27 +12,21 @@ import java.util.Map;
 @Data
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class Review {
 
-    private int reviewId;
+    private Integer reviewId;
 
-    private int filmId;
+    private Integer filmId;
 
-    private int userId;
+    private Integer userId;
 
-    @NotBlank
-    @Size(min = 1, max = 1000)
     private String content;
 
     private Boolean isPositive;
 
     private Integer useful;
 
-    private Map<Long, Boolean> userReactions;
+    private Map<Long, Boolean> userReactions = new HashMap<>();
 
-
-    public Review() {
-        this.useful = 0;
-        this.userReactions = new HashMap<>();
-    }
 }

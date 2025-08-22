@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.repository.dto.review;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
 import java.util.Map;
@@ -10,13 +9,11 @@ import java.util.Map;
 @Data
 public class ReviewDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private int reviewId;
+    private Integer reviewId;
 
+    private Integer filmId;
 
-    @Positive
-    private int filmId;
-    @Positive
-    private int userId;
+    private Integer userId;
 
     private String content;
 
