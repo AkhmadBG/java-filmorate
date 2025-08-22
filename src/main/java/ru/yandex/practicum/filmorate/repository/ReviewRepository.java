@@ -10,18 +10,20 @@ public interface ReviewRepository {
 
     void updateReview(Review review);
 
-    void deleteReview(long reviewId);
+    void deleteReview(int reviewId);
 
-    List<Review> getReviewsByFilmId(long filmId, int count);
+    List<Review> getReviewsByFilmId(int filmId, int count);
 
-    void addLikeReview(long reviewId, long userId);
+    void addLikeReview(int reviewId, int userId);
 
-    void addDislikeReview(long reviewId, long userId);
+    void addDislikeReview(int reviewId, int userId);
 
-    void deleteLikeReview(long reviewId, long userId);
+    void deleteLikeReview(int reviewId, int userId);
 
-    void deleteDislikeReview(long reviewId, long userId);
+    void deleteDislikeReview(int reviewId, int userId);
 
-    Review getReviewById(long reviewId);
+    Review getReviewById(int reviewId);
+
+    List<Review> getAllReviews(int count);
 
 }

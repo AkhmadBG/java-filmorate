@@ -29,6 +29,13 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public ReviewDto createReview(NewReviewRequest request) {
         ReviewValidator.validator(request);
+        if (userRepository.getUserById(request.getUserId()) == null) {
+            throw new NotFoundException("Пользователь с id " + request.getUserId() + " не найден");
+        }
+
+        if (filmRepository.getFilmById(request.getFilmId()) == null) {
+            throw new NotFoundException("Фильм с id " + request.getFilmId() + " не найден");
+        }
         Review review = reviewRepository.createReview(ReviewMapper.mapToReview(request));
         log.info("ReviewServiceImpl: новый отзыв  с id {} добавлен", review.getReviewId());
         return ReviewMapper.mapToReviewDto(review);
@@ -48,7 +55,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public void deleteReview(long reviewId) {
+    public void deleteReview(int reviewId) {
         Review review = reviewRepository.getReviewById(reviewId);
         if (review == null) {
             throw new NotFoundException("Отзыв не найден");
@@ -64,20 +71,24 @@ public class ReviewServiceImpl implements ReviewService {
             count = 10;
         }
 
-        // Если filmId указан и не равен 0, проверяем существование фильма
-        if (filmId != 0 && filmRepository.getFilmById(filmId) == null) {
-            throw new NotFoundException("Фильма с id" + filmId + "не существует");
+        if (filmId > 0 && filmRepository.getFilmById(filmId) == null) {
+            throw new NotFoundException("Фильма с id " + filmId + " не существует");
         }
 
-        // Получаем список отзывов: для конкретного фильма или всех
-        return reviewRepository.getReviewsByFilmId(filmId, count)
-                .stream()
+        List<Review> reviews;
+        if (filmId == 0) {
+            reviews = reviewRepository.getAllReviews(count);
+        } else {
+            reviews = reviewRepository.getReviewsByFilmId(filmId, count);
+        }
+
+        return reviews.stream()
                 .map(ReviewMapper::mapToReviewDto)
                 .toList();
     }
 
     @Override
-    public void addLikeReview(long reviewId, int userId) {
+    public void addLikeReview(int reviewId, int userId) {
         Review review = reviewRepository.getReviewById(reviewId);
         if (review == null) throw new NotFoundException("Отзыв не найден");
         if (userRepository.getUserById(userId) == null) throw new NotFoundException("Пльзователь не найден");
@@ -86,7 +97,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public void addDislikeReview(long reviewId, int userId) {
+    public void addDislikeReview(int reviewId, int userId) {
         Review review = reviewRepository.getReviewById(reviewId);
         if (review == null) throw new NotFoundException("Отзыв не найден");
         if (userRepository.getUserById(userId) == null) throw new NotFoundException("Пльзователь не найден");
@@ -95,7 +106,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public void deleteLikeReview(long reviewId, int userId) {
+    public void deleteLikeReview(int reviewId, int userId) {
         Review review = reviewRepository.getReviewById(reviewId);
         if (review == null) throw new NotFoundException("Отзыв не найден");
         if (userRepository.getUserById(userId) == null) throw new NotFoundException("Пльзователь не найден");
@@ -104,7 +115,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public void deleteDislikeReview(long reviewId, int userId) {
+    public void deleteDislikeReview(int reviewId, int userId) {
         Review review = reviewRepository.getReviewById(reviewId);
         if (review == null) throw new NotFoundException("Отзыв не найден");
         if (userRepository.getUserById(userId) == null) throw new NotFoundException("Пльзователь не найден");
@@ -113,7 +124,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public ReviewDto getReviewById(long reviewId) {
+    public ReviewDto getReviewById(int reviewId) {
         Review review = reviewRepository.getReviewById(reviewId);
         if (review == null) throw new NotFoundException("Отзыв не найден");
         return ReviewMapper.mapToReviewDto(review);

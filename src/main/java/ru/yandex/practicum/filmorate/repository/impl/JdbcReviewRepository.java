@@ -38,7 +38,7 @@ public class JdbcReviewRepository implements ReviewRepository {
 
         namedJdbc.update(sql, params, keyHolder, new String[]{"review_id"});
 
-        review.setReviewId(Objects.requireNonNull(keyHolder.getKey()).longValue());
+        review.setReviewId(Objects.requireNonNull(keyHolder.getKey()).intValue());
         log.info("Создан отзыв с ID: {}", review.getReviewId());
         return review;
 
@@ -61,7 +61,7 @@ public class JdbcReviewRepository implements ReviewRepository {
     }
 
     @Override
-    public void deleteReview(long reviewId) {
+    public void deleteReview(int reviewId) {
         String sql = "DELETE FROM reviews WHERE review_id = :review_id";
 
         MapSqlParameterSource params = new MapSqlParameterSource();
@@ -73,7 +73,7 @@ public class JdbcReviewRepository implements ReviewRepository {
     }
 
     @Override
-    public List<Review> getReviewsByFilmId(long filmId, int count) {
+    public List<Review> getReviewsByFilmId(int filmId, int count) {
         String sql;
         MapSqlParameterSource params = new MapSqlParameterSource();
 
@@ -93,11 +93,11 @@ public class JdbcReviewRepository implements ReviewRepository {
         }
         return namedJdbc.query(sql, params, (rs, rowNum) -> {
             Review review = new Review();
-            review.setReviewId(rs.getLong("review_id"));
+            review.setReviewId(rs.getInt("review_id"));
             review.setContent(rs.getString("content"));
             review.setIsPositive(rs.getBoolean("is_positive"));
-            review.setUserId(rs.getLong("user_id"));
-            review.setFilmId(rs.getLong("film_id"));
+            review.setUserId(rs.getInt("user_id"));
+            review.setFilmId(rs.getInt("film_id"));
             review.setUseful(rs.getInt("useful"));
             review.setUserReactions(new HashMap<>());
             return review;
@@ -105,7 +105,7 @@ public class JdbcReviewRepository implements ReviewRepository {
     }
 
     @Override
-    public void addLikeReview(long reviewId, long userId) {
+    public void addLikeReview(int reviewId, int userId) {
         String selectSql = "SELECT is_like FROM review_reactions WHERE review_id = :review_id AND user_id = :user_id";
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("review_id", reviewId)
@@ -131,7 +131,7 @@ public class JdbcReviewRepository implements ReviewRepository {
     }
 
     @Override
-    public void addDislikeReview(long reviewId, long userId) {
+    public void addDislikeReview(int reviewId, int userId) {
         String selectSql = "SELECT is_like FROM review_reactions WHERE review_id = :review_id AND user_id = :user_id";
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("review_id", reviewId)
@@ -158,7 +158,7 @@ public class JdbcReviewRepository implements ReviewRepository {
     }
 
     @Override
-    public void deleteLikeReview(long reviewId, long userId) {
+    public void deleteLikeReview(int reviewId, int userId) {
         String selectSql = "SELECT is_like FROM review_reactions WHERE review_id = :review_id AND user_id = :user_id";
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("review_id", reviewId)
@@ -179,7 +179,7 @@ public class JdbcReviewRepository implements ReviewRepository {
     }
 
     @Override
-    public void deleteDislikeReview(long reviewId, long userId) {
+    public void deleteDislikeReview(int reviewId, int userId) {
         String selectSql = "SELECT is_like FROM review_reactions WHERE review_id = :review_id AND user_id = :user_id";
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("review_id", reviewId)
@@ -201,7 +201,7 @@ public class JdbcReviewRepository implements ReviewRepository {
     }
 
     @Override
-    public Review getReviewById(long reviewId) {
+    public Review getReviewById(int reviewId) {
         String sql = "SELECT r.review_id, r.content, r.is_positive, r.user_id, r.film_id, r.useful " +
                 "FROM reviews r WHERE r.review_id = :review_id";
 
@@ -210,11 +210,11 @@ public class JdbcReviewRepository implements ReviewRepository {
 
         Review review = namedJdbc.queryForObject(sql, params, (rs, rowNum) -> {
             Review r = new Review();
-            r.setReviewId(rs.getLong("review_id"));
+            r.setReviewId(rs.getInt("review_id"));
             r.setContent(rs.getString("content"));
             r.setIsPositive(rs.getBoolean("is_positive"));
-            r.setUserId(rs.getLong("user_id"));
-            r.setFilmId(rs.getLong("film_id"));
+            r.setUserId(rs.getInt("user_id"));
+            r.setFilmId(rs.getInt("film_id"));
             r.setUseful(rs.getInt("useful"));
             return r;
         });
@@ -236,4 +236,40 @@ public class JdbcReviewRepository implements ReviewRepository {
         return review;
     }
 
+    @Override
+    public List<Review> getAllReviews(int count) {
+        if (count <= 0) {
+            count = 10; // значение по умолчанию
+        }
+
+        String sql = "SELECT * FROM reviews ORDER BY useful DESC LIMIT :count";
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("count", count);
+
+        return namedJdbc.query(sql, params, (rs, rowNum) -> {
+            Review review = new Review();
+            review.setReviewId(rs.getInt("review_id"));
+            review.setContent(rs.getString("content"));
+            review.setIsPositive(rs.getBoolean("is_positive"));
+            review.setUserId(rs.getInt("user_id"));
+            review.setFilmId(rs.getInt("film_id"));
+            review.setUseful(rs.getInt("useful"));
+
+            // подтягиваем реакции
+            String sqlReactions = "SELECT user_id, is_like FROM review_reactions WHERE review_id = :review_id";
+            MapSqlParameterSource reactionParams = new MapSqlParameterSource()
+                    .addValue("review_id", review.getReviewId());
+            Map<Long, Boolean> reactions = namedJdbc.query(sqlReactions, reactionParams, rsReactions -> {
+                Map<Long, Boolean> map = new HashMap<>();
+                while (rsReactions.next()) {
+                    map.put(rsReactions.getLong("user_id"), rsReactions.getBoolean("is_like"));
+                }
+                return map;
+            });
+            review.setUserReactions(reactions);
+
+            return review;
+        });
+
+    }
 }

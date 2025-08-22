@@ -37,7 +37,7 @@ public class ReviewController {
 
     // DELETE /reviews/{id}
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteReview(@PathVariable long id) {
+    public ResponseEntity<Void> deleteReview(@PathVariable int id) {
         log.info("Получен запрос на удаление отзыва {}", id);
         reviewService.deleteReview(id);
         return ResponseEntity.noContent().build();
@@ -45,7 +45,7 @@ public class ReviewController {
 
     // GET /reviews/{id}
     @GetMapping("/{id}")
-    public ResponseEntity<ReviewDto> getReviewById(@PathVariable long id) {
+    public ResponseEntity<ReviewDto> getReviewById(@PathVariable int id) {
         log.info("Получен запрос на получение отзыва {}", id);
         return ResponseEntity.ok(reviewService.getReviewById(id));
     }
@@ -61,33 +61,33 @@ public class ReviewController {
 
     // PUT /reviews/{id}/like/{userId}
     @PutMapping("/{id}/like/{userId}")
-    public ResponseEntity<Void> addLike(@PathVariable long id, @PathVariable int userId) {
+    public ResponseEntity<String> addLike(@PathVariable int id, @PathVariable int userId) {
         log.info("Пользователь {} лайкает отзыв {}", userId, id);
         reviewService.addLikeReview(id, userId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Лайк добавлен");
     }
 
     // PUT /reviews/{id}/dislike/{userId}
     @PutMapping("/{id}/dislike/{userId}")
-    public ResponseEntity<Void> addDislike(@PathVariable long id, @PathVariable int userId) {
+    public ResponseEntity<String> addDislike(@PathVariable int id, @PathVariable int userId) {
         log.info("Пользователь {} дизлайкает отзыв {}", userId, id);
         reviewService.addDislikeReview(id, userId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Дизлайк добавлен");
     }
 
     // DELETE /reviews/{id}/like/{userId}
     @DeleteMapping("/{id}/like/{userId}")
-    public ResponseEntity<Void> deleteLike(@PathVariable long id, @PathVariable int userId) {
+    public ResponseEntity<String> deleteLike(@PathVariable int id, @PathVariable int userId) {
         log.info("Пользователь {} удаляет лайк отзыва {}", userId, id);
         reviewService.deleteLikeReview(id, userId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Лайк удален");
     }
 
     // DELETE /reviews/{id}/dislike/{userId}
     @DeleteMapping("/{id}/dislike/{userId}")
-    public ResponseEntity<Void> deleteDislike(@PathVariable long id, @PathVariable int userId) {
+    public ResponseEntity<String> deleteDislike(@PathVariable int id, @PathVariable int userId) {
         log.info("Пользователь {} удаляет дизлайк отзыва {}", userId, id);
         reviewService.deleteDislikeReview(id, userId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Дизлайк удален");
     }
 }

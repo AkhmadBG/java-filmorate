@@ -26,8 +26,8 @@ public class ReviewsExtractor implements ResultSetExtractor<List<Review>> {
                         .reviewId(reviewId)
                         .content(rs.getString("content"))
                         .isPositive(rs.getBoolean("is_positive"))
-                        .userId(rs.getLong("user_id"))
-                        .filmId(rs.getLong("film_id"))
+                        .userId(rs.getInt("user_id"))
+                        .filmId(rs.getInt("film_id"))
                         .useful(rs.getInt("useful"))
                         .userReactions(new HashMap<>())
                         .build();

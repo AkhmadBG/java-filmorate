@@ -11,7 +11,7 @@ public class ReviewValidator {
     public static void validator(NewReviewRequest request) {
 
         if (request == null) {
-            throw new ValidationException("ReviewValidator: Отзыв не может быь пустым");
+            throw new NotFoundException("ReviewValidator: Отзыв не найден");
         }
 
         if (request.getContent() == null || request.getContent().isBlank()) {
@@ -25,6 +25,7 @@ public class ReviewValidator {
         if (request.getUserId() == null || request.getFilmId() == null) {
             throw new NotFoundException("ReviewValidator: Поле не может быть пустым");
         }
+
 
         if (request.getUserId() < 1 || request.getFilmId() < 1) {
             throw new NotFoundException("ReviewValidator: Пользлватель или фильм не найден");

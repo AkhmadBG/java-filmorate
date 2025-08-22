@@ -7,7 +7,7 @@ import lombok.Data;
 public class UpdateReviewRequest {
 
     @NotNull(message = "Поле не может быть пустым")
-    private Long reviewId;
+    private int reviewId;
 
 
     private String content;

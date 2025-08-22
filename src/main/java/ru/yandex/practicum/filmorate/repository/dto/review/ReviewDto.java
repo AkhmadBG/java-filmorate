@@ -9,11 +9,11 @@ import java.util.Map;
 @Data
 public class ReviewDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private Long reviewId;
+    private int reviewId;
 
-    private Long filmId;
+    private int filmId;
 
-    private Long userId;
+    private int userId;
 
     private String content;
 

@@ -13,19 +13,19 @@ public interface ReviewService {
 
     ReviewDto updateReview(UpdateReviewRequest request);
 
-    void deleteReview(long reviewId);
+    void deleteReview(int reviewId);
 
     List<ReviewDto> getReviewsByFilmId(int filmId, int count);
 
-    void addLikeReview(long reviewId, int userId);
+    void addLikeReview(int reviewId, int userId);
 
-    void addDislikeReview(long reviewId, int userId);
+    void addDislikeReview(int reviewId, int userId);
 
-    void deleteLikeReview(long reviewId, int userId);
+    void deleteLikeReview(int reviewId, int userId);
 
-    void deleteDislikeReview(long reviewId, int userId);
+    void deleteDislikeReview(int reviewId, int userId);
 
-    ReviewDto getReviewById(long reviewID);
+    ReviewDto getReviewById(int reviewID);
 
 
 }

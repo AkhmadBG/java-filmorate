@@ -14,8 +14,8 @@ public class NewReviewRequest {
 
 
     @NotNull(message = "Поле не может быть пустым")
-    private Long userId;
+    private int userId;
 
     @NotNull(message = "Поле не может быть пустым")
-    private Long filmId;
+    private int filmId;
 }

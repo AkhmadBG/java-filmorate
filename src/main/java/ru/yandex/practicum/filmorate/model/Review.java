@@ -15,11 +15,11 @@ import java.util.Map;
 @AllArgsConstructor
 public class Review {
 
-    private Long reviewId;
+    private int reviewId;
 
-    private Long filmId;
+    private int filmId;
 
-    private Long userId;
+    private int userId;
 
     @NotBlank
     @Size(min = 1, max = 1000)
