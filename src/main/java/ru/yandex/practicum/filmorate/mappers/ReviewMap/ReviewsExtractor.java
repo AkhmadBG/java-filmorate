@@ -14,11 +14,11 @@ import java.util.Map;
 public class ReviewsExtractor implements ResultSetExtractor<List<Review>> {
     @Override
     public List<Review> extractData(ResultSet rs) throws SQLException, DataAccessException {
-        Map<Long, Review> reviewMap = new HashMap<>();
+        Map<Integer, Review> reviewMap = new HashMap<>();
 
         while (rs.next()) {
 
-            Long reviewId = rs.getLong("review_id");
+            int reviewId = rs.getInt("review_id");
 
             Review review = reviewMap.get(reviewId);
             if (review == null) {

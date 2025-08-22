@@ -17,7 +17,7 @@ public class ReviewExtractor implements ResultSetExtractor<Review> {
         }
 
         Review review = Review.builder()
-                .reviewId(rs.getLong("review_id"))
+                .reviewId(rs.getInt("review_id"))
                 .content(rs.getString("content"))
                 .isPositive(rs.getBoolean("is_positive"))
                 .userId(rs.getInt("user_id"))
