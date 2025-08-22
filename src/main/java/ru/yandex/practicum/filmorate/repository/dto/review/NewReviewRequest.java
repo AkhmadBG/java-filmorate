@@ -12,6 +12,7 @@ public class NewReviewRequest {
     @NotNull(message = "Поле не может быть пустым")
     private Boolean isPositive;
 
+
     @NotNull(message = "Поле не может быть пустым")
     private Long userId;
 

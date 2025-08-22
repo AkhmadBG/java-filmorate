@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,7 +29,7 @@ public class Review {
 
     private Integer useful;
 
-    private Map<Long,Boolean> userReactions;
+    private Map<Long, Boolean> userReactions;
 
 
     public Review() {

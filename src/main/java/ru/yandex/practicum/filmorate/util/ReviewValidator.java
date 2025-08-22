@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.util;
 
 import lombok.experimental.UtilityClass;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.repository.dto.review.NewReviewRequest;
 
@@ -22,7 +23,11 @@ public class ReviewValidator {
         }
 
         if (request.getUserId() == null || request.getFilmId() == null) {
-            throw new ValidationException("ReviewValidator: Поле не может быть пустым");
+            throw new NotFoundException("ReviewValidator: Поле не может быть пустым");
+        }
+
+        if (request.getUserId() < 1 || request.getFilmId() < 1) {
+            throw new NotFoundException("ReviewValidator: Пользлватель или фильм не найден");
         }
     }
 }

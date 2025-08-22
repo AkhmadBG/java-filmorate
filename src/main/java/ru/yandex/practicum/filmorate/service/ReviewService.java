@@ -15,15 +15,15 @@ public interface ReviewService {
 
     void deleteReview(long reviewId);
 
-    List<ReviewDto> getReviewsByFilmId(long filmId, int count);
+    List<ReviewDto> getReviewsByFilmId(int filmId, int count);
 
-    void addLikeReview(long reviewId, long userId);
+    void addLikeReview(long reviewId, int userId);
 
-    void addDislikeReview(long reviewId, long userId);
+    void addDislikeReview(long reviewId, int userId);
 
-    void deleteLikeReview(long reviewId, long userId);
+    void deleteLikeReview(long reviewId, int userId);
 
-    void deleteDislikeReview(long reviewId, long userId);
+    void deleteDislikeReview(long reviewId, int userId);
 
     ReviewDto getReviewById(long reviewID);
 

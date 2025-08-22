@@ -3,9 +3,12 @@ package ru.yandex.practicum.filmorate.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mappers.ReviewMap.ReviewMapper;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.repository.FilmRepository;
 import ru.yandex.practicum.filmorate.repository.ReviewRepository;
+import ru.yandex.practicum.filmorate.repository.UserRepository;
 import ru.yandex.practicum.filmorate.repository.dto.review.NewReviewRequest;
 import ru.yandex.practicum.filmorate.repository.dto.review.ReviewDto;
 import ru.yandex.practicum.filmorate.repository.dto.review.UpdateReviewRequest;
@@ -20,6 +23,8 @@ import java.util.List;
 public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewRepository reviewRepository;
+    private final FilmRepository filmRepository;
+    private final UserRepository userRepository;
 
     @Override
     public ReviewDto createReview(NewReviewRequest request) {
@@ -31,6 +36,10 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public ReviewDto updateReview(UpdateReviewRequest request) {
+        Review r = reviewRepository.getReviewById(request.getReviewId());
+        if (r == null) {
+            throw new NotFoundException("Отзыв не найден");
+        }
         Review review = reviewRepository.getReviewById(request.getReviewId());
         ReviewMapper.updateReview(review, request);
         reviewRepository.updateReview(review);
@@ -40,45 +49,73 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public void deleteReview(long reviewId) {
-        reviewRepository.deleteReview((int) reviewId);
+        Review review = reviewRepository.getReviewById(reviewId);
+        if (review == null) {
+            throw new NotFoundException("Отзыв не найден");
+        }
+        reviewRepository.deleteReview(reviewId);
         log.info("ReviewServiceImpl: отзыв с id {} удален", reviewId);
     }
 
     @Override
-    public List<ReviewDto> getReviewsByFilmId(long filmId, int count) {
-        return reviewRepository.getReviewsByFilmId((int) filmId, count)
+    public List<ReviewDto> getReviewsByFilmId(int filmId, int count) {
+
+        if (count <= 0) {
+            count = 10;
+        }
+
+        // Если filmId указан и не равен 0, проверяем существование фильма
+        if (filmId != 0 && filmRepository.getFilmById(filmId) == null) {
+            throw new NotFoundException("Фильма с id" + filmId + "не существует");
+        }
+
+        // Получаем список отзывов: для конкретного фильма или всех
+        return reviewRepository.getReviewsByFilmId(filmId, count)
                 .stream()
                 .map(ReviewMapper::mapToReviewDto)
                 .toList();
     }
 
     @Override
-    public void addLikeReview(long reviewId, long userId) {
-        reviewRepository.addLikeReview((int) reviewId, (int) userId);
+    public void addLikeReview(long reviewId, int userId) {
+        Review review = reviewRepository.getReviewById(reviewId);
+        if (review == null) throw new NotFoundException("Отзыв не найден");
+        if (userRepository.getUserById(userId) == null) throw new NotFoundException("Пльзователь не найден");
+        reviewRepository.addLikeReview(reviewId, userId);
         log.info("ReviewServiceImpl: пользователь {} лайкнул отзыв {}", userId, reviewId);
     }
 
     @Override
-    public void addDislikeReview(long reviewId, long userId) {
-        reviewRepository.addDislikeReview((int) reviewId, (int) userId);
+    public void addDislikeReview(long reviewId, int userId) {
+        Review review = reviewRepository.getReviewById(reviewId);
+        if (review == null) throw new NotFoundException("Отзыв не найден");
+        if (userRepository.getUserById(userId) == null) throw new NotFoundException("Пльзователь не найден");
+        reviewRepository.addDislikeReview(reviewId, userId);
         log.info("ReviewServiceImpl: пользователь {} дизлайкнул отзыв {}", userId, reviewId);
     }
 
     @Override
-    public void deleteLikeReview(long reviewId, long userId) {
-        reviewRepository.deleteLikeReview((int) reviewId, (int) userId);
+    public void deleteLikeReview(long reviewId, int userId) {
+        Review review = reviewRepository.getReviewById(reviewId);
+        if (review == null) throw new NotFoundException("Отзыв не найден");
+        if (userRepository.getUserById(userId) == null) throw new NotFoundException("Пльзователь не найден");
+        reviewRepository.deleteLikeReview(reviewId, userId);
         log.info("ReviewServiceImpl: пользователь {} убрал лайк с отзыва {}", userId, reviewId);
     }
 
     @Override
-    public void deleteDislikeReview(long reviewId, long userId) {
-        reviewRepository.deleteDislikeReview((int) reviewId, (int) userId);
+    public void deleteDislikeReview(long reviewId, int userId) {
+        Review review = reviewRepository.getReviewById(reviewId);
+        if (review == null) throw new NotFoundException("Отзыв не найден");
+        if (userRepository.getUserById(userId) == null) throw new NotFoundException("Пльзователь не найден");
+        reviewRepository.deleteDislikeReview(reviewId, userId);
         log.info("ReviewServiceImpl: пользователь {} убрал дизлайк с отзыва {}", userId, reviewId);
     }
 
     @Override
     public ReviewDto getReviewById(long reviewId) {
         Review review = reviewRepository.getReviewById(reviewId);
+        if (review == null) throw new NotFoundException("Отзыв не найден");
         return ReviewMapper.mapToReviewDto(review);
     }
 }
