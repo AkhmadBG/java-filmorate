@@ -59,35 +59,29 @@ public class ReviewController {
         return ResponseEntity.ok(reviewService.getReviewsByFilmId(filmId, count));
     }
 
-    // PUT /reviews/{id}/like/{userId}
     @PutMapping("/{id}/like/{userId}")
-    public ResponseEntity<String> addLike(@PathVariable int id, @PathVariable int userId) {
-        log.info("Пользователь {} лайкает отзыв {}", userId, id);
+    public ResponseEntity<ReviewDto> addLike(@PathVariable int id, @PathVariable int userId) {
         reviewService.addLikeReview(id, userId);
-        return ResponseEntity.ok("Лайк добавлен");
+        return ResponseEntity.ok(reviewService.getReviewById(id));
     }
 
-    // PUT /reviews/{id}/dislike/{userId}
     @PutMapping("/{id}/dislike/{userId}")
-    public ResponseEntity<String> addDislike(@PathVariable int id, @PathVariable int userId) {
-        log.info("Пользователь {} дизлайкает отзыв {}", userId, id);
+    public ResponseEntity<ReviewDto> addDislike(@PathVariable int id, @PathVariable int userId) {
         reviewService.addDislikeReview(id, userId);
-        return ResponseEntity.ok("Дизлайк добавлен");
+        return ResponseEntity.ok(reviewService.getReviewById(id));
     }
 
-    // DELETE /reviews/{id}/like/{userId}
     @DeleteMapping("/{id}/like/{userId}")
-    public ResponseEntity<String> deleteLike(@PathVariable int id, @PathVariable int userId) {
-        log.info("Пользователь {} удаляет лайк отзыва {}", userId, id);
+    public ResponseEntity<ReviewDto> deleteLike(@PathVariable int id, @PathVariable int userId) {
         reviewService.deleteLikeReview(id, userId);
-        return ResponseEntity.ok("Лайк удален");
+        return ResponseEntity.ok(reviewService.getReviewById(id));
     }
 
-    // DELETE /reviews/{id}/dislike/{userId}
     @DeleteMapping("/{id}/dislike/{userId}")
-    public ResponseEntity<String> deleteDislike(@PathVariable int id, @PathVariable int userId) {
-        log.info("Пользователь {} удаляет дизлайк отзыва {}", userId, id);
+    public ResponseEntity<ReviewDto> deleteDislike(@PathVariable int id, @PathVariable int userId) {
         reviewService.deleteDislikeReview(id, userId);
-        return ResponseEntity.ok("Дизлайк удален");
+        return ResponseEntity.ok(reviewService.getReviewById(id));
     }
+
+
 }

@@ -89,40 +89,39 @@ public class ReviewServiceImpl implements ReviewService {
                 .toList();
     }
 
+    private void validateReviewAndUser(int reviewId, int userId) {
+        if (reviewRepository.getReviewById(reviewId) == null)
+            throw new NotFoundException("Отзыв не найден");
+        if (userRepository.getUserById(userId) == null)
+            throw new NotFoundException("Пользователь не найден");
+    }
+
     @Override
     public void addLikeReview(int reviewId, int userId) {
-        Review review = reviewRepository.getReviewById(reviewId);
-        if (review == null) throw new NotFoundException("Отзыв не найден");
-        if (userRepository.getUserById(userId) == null) throw new NotFoundException("Пользователь не найден");
+        validateReviewAndUser(reviewId, userId);
         reviewRepository.addLikeReview(reviewId, userId);
-        log.info("ReviewServiceImpl: пользователь {} лайкнул отзыв {}", userId, reviewId);
+        log.info("Пользователь {} лайкнул отзыв {}", userId, reviewId);
     }
 
     @Override
     public void addDislikeReview(int reviewId, int userId) {
-        Review review = reviewRepository.getReviewById(reviewId);
-        if (review == null) throw new NotFoundException("Отзыв не найден");
-        if (userRepository.getUserById(userId) == null) throw new NotFoundException("Пользователь не найден");
+        validateReviewAndUser(reviewId, userId);
         reviewRepository.addDislikeReview(reviewId, userId);
-        log.info("ReviewServiceImpl: пользователь {} дизлайкнул отзыв {}", userId, reviewId);
+        log.info("Пользователь {} дизлайкнул отзыв {}", userId, reviewId);
     }
 
     @Override
     public void deleteLikeReview(int reviewId, int userId) {
-        Review review = reviewRepository.getReviewById(reviewId);
-        if (review == null) throw new NotFoundException("Отзыв не найден");
-        if (userRepository.getUserById(userId) == null) throw new NotFoundException("Пользователь не найден");
+        validateReviewAndUser(reviewId, userId);
         reviewRepository.deleteLikeReview(reviewId, userId);
-        log.info("ReviewServiceImpl: пользователь {} убрал лайк с отзыва {}", userId, reviewId);
+        log.info("Пользователь {} убрал лайк с отзыва {}", userId, reviewId);
     }
 
     @Override
     public void deleteDislikeReview(int reviewId, int userId) {
-        Review review = reviewRepository.getReviewById(reviewId);
-        if (review == null) throw new NotFoundException("Отзыв не найден");
-        if (userRepository.getUserById(userId) == null) throw new NotFoundException("Пользователь не найден");
+        validateReviewAndUser(reviewId, userId);
         reviewRepository.deleteDislikeReview(reviewId, userId);
-        log.info("ReviewServiceImpl: пользователь {} убрал дизлайк с отзыва {}", userId, reviewId);
+        log.info("Пользователь {} убрал дизлайк с отзыва {}", userId, reviewId);
     }
 
     @Override

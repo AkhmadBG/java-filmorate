@@ -138,6 +138,7 @@ public class JdbcReviewRepository implements ReviewRepository {
         return getReviewsByFilmId(0, count);
     }
 
+
     @Override
     public void addLikeReview(int reviewId, int userId) {
         addReaction(reviewId, userId, true);
@@ -158,21 +159,38 @@ public class JdbcReviewRepository implements ReviewRepository {
         deleteReaction(reviewId, userId);
     }
 
-    private void addReaction(int reviewId, int userId, boolean isLike) {
-        String sql = """
-                INSERT INTO review_reactions (review_id, user_id, is_like)
-                VALUES (:review_id, :user_id, :is_like)
-                ON CONFLICT (review_id, user_id) DO UPDATE SET is_like = :is_like
-                """;
 
+    private void addReaction(int reviewId, int userId, boolean isLike) {
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("review_id", reviewId)
                 .addValue("user_id", userId)
                 .addValue("is_like", isLike);
 
-        namedJdbc.update(sql, params);
-        updateUseful(reviewId);
+        try {
+            // 1. Проверяем, есть ли уже реакция
+            String checkSql = "SELECT COUNT(*) FROM review_reactions WHERE review_id = :review_id AND user_id = :user_id";
+            Integer count = namedJdbc.queryForObject(checkSql, params, Integer.class);
+
+            if (count != null && count > 0) {
+                // 2. Обновляем реакцию
+                String updateSql = "UPDATE review_reactions SET is_like = :is_like WHERE review_id = :review_id AND user_id = :user_id";
+                namedJdbc.update(updateSql, params);
+            } else {
+                // 3. Вставляем новую реакцию
+                String insertSql = "INSERT INTO review_reactions (review_id, user_id, is_like) VALUES (:review_id, :user_id, :is_like)";
+                namedJdbc.update(insertSql, params);
+            }
+
+            // 4. Пересчитываем полезность
+            updateUseful(reviewId);
+
+        } catch (Exception e) {
+            log.error("Ошибка при добавлении реакции на отзыв {} пользователем {}: {}",
+                    reviewId, userId, e.getMessage(), e);
+            throw new RuntimeException("Ошибка при добавлении реакции на отзыв", e);
+        }
     }
+
 
     private void deleteReaction(int reviewId, int userId) {
         String sql = "DELETE FROM review_reactions WHERE review_id = :review_id AND user_id = :user_id";
@@ -180,25 +198,35 @@ public class JdbcReviewRepository implements ReviewRepository {
                 .addValue("review_id", reviewId)
                 .addValue("user_id", userId);
 
-        namedJdbc.update(sql, params);
-        updateUseful(reviewId);
+        try {
+            namedJdbc.update(sql, params);
+            updateUseful(reviewId);
+
+            // Возвращаем актуальный отзыв после пересчёта
+            getReviewById(reviewId);
+
+        } catch (Exception e) {
+            log.error("Ошибка при удалении реакции на отзыв {} пользователем {}: {}",
+                    reviewId, userId, e.getMessage(), e);
+            throw new RuntimeException("Ошибка при удалении реакции на отзыв", e);
+        }
     }
+
 
     private void updateUseful(int reviewId) {
         String sql = """
-                UPDATE reviews
-                SET useful = (
-                    SELECT COALESCE(SUM(CASE WHEN is_like THEN 1 ELSE -1 END), 0)
-                    FROM review_reactions
+                    UPDATE reviews
+                    SET useful = (
+                        SELECT COALESCE(SUM(CASE WHEN is_like THEN 1 ELSE -1 END), 0)
+                        FROM review_reactions
+                        WHERE review_id = :review_id
+                    )
                     WHERE review_id = :review_id
-                )
-                WHERE review_id = :review_id
                 """;
 
-        MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("review_id", reviewId);
-
-        namedJdbc.update(sql, params);
+        namedJdbc.update(sql, new MapSqlParameterSource().addValue("review_id", reviewId));
     }
+
+
 }
 
