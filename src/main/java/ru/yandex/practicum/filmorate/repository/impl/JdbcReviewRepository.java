@@ -2,11 +2,13 @@ package ru.yandex.practicum.filmorate.repository.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mappers.ReviewMap.ReviewExtractor;
 import ru.yandex.practicum.filmorate.mappers.ReviewMap.ReviewsExtractor;
@@ -110,99 +112,125 @@ public class JdbcReviewRepository implements ReviewRepository {
     }
 
     @Override
+    @Transactional
     public void addLikeReview(int reviewId, int userId) {
-        String selectSql = "SELECT is_like FROM review_reactions WHERE review_id = :review_id AND user_id = :user_id";
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("review_id", reviewId)
                 .addValue("user_id", userId);
 
-        Boolean oldReaction = null;
+        String insertOrUpdateSql = """
+                    INSERT INTO review_reactions (review_id, user_id, is_like)
+                    VALUES (:review_id, :user_id, true)
+                    ON CONFLICT (review_id, user_id) DO UPDATE
+                    SET is_like = true
+                    WHERE review_reactions.is_like = false
+                    RETURNING CASE
+                        WHEN xmax = 0 THEN 1       -- новая запись
+                        ELSE 2                     -- обновление дизлайка → лайк
+                    END AS delta
+                """;
+
+        Integer delta;
         try {
-            oldReaction = namedJdbc.queryForObject(selectSql, params, Boolean.class);
-        } catch (Exception ignored) {
-            // записи нет
+            delta = namedJdbc.queryForObject(insertOrUpdateSql, params, Integer.class);
+        } catch (EmptyResultDataAccessException e) {
+            delta = null; // ничего не изменилось
         }
 
-        if (oldReaction == null) {
-            // новая реакция
-            namedJdbc.update("INSERT INTO review_reactions (review_id, user_id, is_like) VALUES (:review_id, :user_id, true)", params);
-            namedJdbc.update("UPDATE reviews SET useful = useful + 1 WHERE review_id = :review_id", params);
-        } else if (!oldReaction) {
-            // было дизлайк → стало лайк
-            namedJdbc.update("UPDATE review_reactions SET is_like = true WHERE review_id = :review_id AND user_id = :user_id", params);
-            // откатить дизлайк (-1) и добавить лайк (+1) → +2
-            namedJdbc.update("UPDATE reviews SET useful = useful + 2 WHERE review_id = :review_id", params);
+        if (delta != null) {
+            namedJdbc.update(
+                    "UPDATE reviews SET useful = useful + :delta WHERE review_id = :review_id",
+                    new MapSqlParameterSource()
+                            .addValue("delta", delta)
+                            .addValue("review_id", reviewId)
+            );
         }
     }
 
     @Override
+    @Transactional
     public void addDislikeReview(int reviewId, int userId) {
-        String selectSql = "SELECT is_like FROM review_reactions WHERE review_id = :review_id AND user_id = :user_id";
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("review_id", reviewId)
                 .addValue("user_id", userId);
 
-        Boolean oldReaction = null;
+        String insertOrUpdateSql = """
+                    INSERT INTO review_reactions (review_id, user_id, is_like)
+                    VALUES (:review_id, :user_id, false)
+                    ON CONFLICT (review_id, user_id) DO UPDATE
+                    SET is_like = false
+                    WHERE review_reactions.is_like = true
+                    RETURNING CASE
+                        WHEN xmax = 0 THEN -1      -- новая запись
+                        ELSE -2                    -- лайк → дизлайк
+                    END AS delta
+                """;
+
+        Integer delta;
         try {
-            oldReaction = namedJdbc.queryForObject(selectSql, params, Boolean.class);
-        } catch (Exception ignored) {
-            // записи нет
+            delta = namedJdbc.queryForObject(insertOrUpdateSql, params, Integer.class);
+        } catch (EmptyResultDataAccessException e) {
+            delta = null;
         }
 
-        if (oldReaction == null) {
-            // новая реакция
-            namedJdbc.update("INSERT INTO review_reactions (review_id, user_id, is_like) VALUES (:review_id, :user_id, false)", params);
-            namedJdbc.update("UPDATE reviews SET useful = useful - 1 WHERE review_id = :review_id", params);
-        } else if (oldReaction) {
-            // было лайк → стало дизлайк
-            namedJdbc.update("UPDATE review_reactions SET is_like = false WHERE review_id = :review_id AND user_id = :user_id", params);
-            // откатить лайк (+1) и добавить дизлайк (-1) → -2
-            namedJdbc.update("UPDATE reviews SET useful = useful - 2 WHERE review_id = :review_id", params);
+        if (delta != null) {
+            namedJdbc.update(
+                    "UPDATE reviews SET useful = useful + :delta WHERE review_id = :review_id",
+                    new MapSqlParameterSource()
+                            .addValue("delta", delta)
+                            .addValue("review_id", reviewId)
+            );
         }
-
     }
 
     @Override
+    @Transactional
     public void deleteLikeReview(int reviewId, int userId) {
-        String selectSql = "SELECT is_like FROM review_reactions WHERE review_id = :review_id AND user_id = :user_id";
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("review_id", reviewId)
                 .addValue("user_id", userId);
 
-        Boolean oldReaction = null;
-        try {
-            oldReaction = namedJdbc.queryForObject(selectSql, params, Boolean.class);
-        } catch (Exception ignored) {
-            // записи нет
-        }
+        String deleteSql = """
+                    DELETE FROM review_reactions
+                    WHERE review_id = :review_id AND user_id = :user_id AND is_like = true
+                    RETURNING review_id
+                """;
 
-        if (Boolean.TRUE.equals(oldReaction)) {
-            // удаляем лайк
-            namedJdbc.update("DELETE FROM review_reactions WHERE review_id = :review_id AND user_id = :user_id", params);
-            namedJdbc.update("UPDATE reviews SET useful = useful - 1 WHERE review_id = :review_id", params);
+        try {
+            Integer affected = namedJdbc.queryForObject(deleteSql, params, Integer.class);
+            if (affected != null) {
+                namedJdbc.update(
+                        "UPDATE reviews SET useful = GREATEST(useful - 1, 0) WHERE review_id = :review_id",
+                        params
+                );
+            }
+        } catch (EmptyResultDataAccessException ignored) {
         }
     }
 
     @Override
+    @Transactional
     public void deleteDislikeReview(int reviewId, int userId) {
-        String selectSql = "SELECT is_like FROM review_reactions WHERE review_id = :review_id AND user_id = :user_id";
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("review_id", reviewId)
                 .addValue("user_id", userId);
 
-        Boolean oldReaction = null;
+        String deleteSql = """
+                    DELETE FROM review_reactions
+                    WHERE review_id = :review_id AND user_id = :user_id AND is_like = false
+                    RETURNING review_id
+                """;
+
         try {
-            oldReaction = namedJdbc.queryForObject(selectSql, params, Boolean.class);
-        } catch (Exception ignored) {
-            // записи нет
+            Integer affected = namedJdbc.queryForObject(deleteSql, params, Integer.class);
+            if (affected != null) {
+                namedJdbc.update(
+                        "UPDATE reviews SET useful = useful + 1 WHERE review_id = :review_id",
+                        params
+                );
+            }
+        } catch (EmptyResultDataAccessException ignored) {
         }
-
-        if (Boolean.FALSE.equals(oldReaction)) {
-            // удаляем дизлайк
-            namedJdbc.update("DELETE FROM review_reactions WHERE review_id = :review_id AND user_id = :user_id", params);
-            namedJdbc.update("UPDATE reviews SET useful = useful + 1 WHERE review_id = :review_id", params);
-        }
-
     }
 
     @Override
