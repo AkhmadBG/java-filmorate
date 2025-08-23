@@ -13,6 +13,8 @@ import ru.yandex.practicum.filmorate.mappers.UsersExtractor;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
 
+import java.sql.ResultSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -140,4 +142,30 @@ public class JdbcUserRepository implements UserRepository {
         }
     }
 
+    /**
+     * Находит пользователей с наибольшим количеством общих лайков с указанным пользователем.
+     * Использует алгоритм коллаборативной фильтрации для поиска пользователей с похожими вкусами.
+     *
+     * @param userId ID пользователя для которого ищем похожих пользователей
+     * @return Map, где ключ - ID похожего пользователя, значение - количество общих лайков
+     */
+    @Override
+    public Map<Integer, Integer> findUsersWithCommonLikes(int userId) {
+        String sql = "SELECT other_likes.user_id, COUNT(DISTINCT other_likes.film_id) as common_likes " +
+                "FROM likes current_user_likes " +
+                "JOIN likes other_likes ON current_user_likes.film_id = other_likes.film_id " +
+                "WHERE current_user_likes.user_id = :user_id AND other_likes.user_id != :user_id " +
+                "GROUP BY other_likes.user_id " +
+                "ORDER BY common_likes DESC";
+
+        Map<String, Object> params = Map.of("user_id", userId);
+
+        return namedJdbc.query(sql, params, (ResultSet rs) -> {
+            Map<Integer, Integer> result = new HashMap<>();
+            while (rs.next()) {
+                result.put(rs.getInt("user_id"), rs.getInt("common_likes"));
+            }
+            return result;
+        });
+    }
 }
