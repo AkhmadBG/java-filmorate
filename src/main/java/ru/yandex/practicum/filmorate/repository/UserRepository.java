@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.repository;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UserRepository {
 
@@ -20,4 +21,10 @@ public interface UserRepository {
 
     void updateUser(User user);
 
+    /**
+     * Находит пользователей с общими лайками с указанным пользователем
+     * @param userId ID пользователя для поиска похожих
+     * @return Map, где ключ - ID похожего пользователя, значение - количество общих лайков
+     */
+    Map<Integer, Integer> findUsersWithCommonLikes(int userId);
 }

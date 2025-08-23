@@ -215,4 +215,43 @@ public class JdbcFilmRepository implements FilmRepository {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Находит фильмы, которые лайкнул один пользователь, но не лайкнул другой пользователь.
+     * Используется для формирования рекомендаций на основе коллаборативной фильтрации.
+     *
+     * @param sourceUserId ID пользователя, который лайкнул фильмы (похожий пользователь)
+     * @param targetUserId ID пользователя, для которого формируются рекомендации
+     * @return Список фильмов для рекомендации
+     */
+    @Override
+    public List<Film> getRecommendedFilms(int sourceUserId, int targetUserId) {
+        log.info("FilmRepository: start : getRecommendedFilms");
+        String sql = "SELECT f.film_id, " +
+                "f.name AS film_name, " +
+                "f.description, " +
+                "f.release_date, " +
+                "f.duration, " +
+                "r.rating_id, " +
+                "r.name AS rating_name, " +
+                "l.user_id AS like_user_id, " +
+                "g.genre_id, " +
+                "g.name AS genre_name " +
+                "FROM films f " +
+                "JOIN likes l ON f.film_id = l.film_id " +
+                "LEFT JOIN rating_mpa r ON f.rating_id = r.rating_id " +
+                "LEFT JOIN films_genres fg ON f.film_id = fg.film_id " +
+                "LEFT JOIN genres g ON fg.genre_id = g.genre_id " +
+                "WHERE l.user_id = :source_user_id " +
+                "AND f.film_id NOT IN (" +
+                "    SELECT film_id FROM likes WHERE user_id = :target_user_id" +
+                ")";
+
+        Map<String, Object> params = Map.of(
+                "source_user_id", sourceUserId,
+                "target_user_id", targetUserId
+        );
+        log.info("sql: {}", sql);
+        log.info("params: {}", params);
+        return namedJdbc.query(sql, params, new FilmsExtractor());
+    }
 }
