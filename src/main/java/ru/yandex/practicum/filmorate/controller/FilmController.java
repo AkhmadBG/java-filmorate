@@ -66,4 +66,10 @@ public class FilmController {
         return ResponseEntity.ok(filmService.getTopFilms(count));
     }
 
+    @DeleteMapping("/{filmId}")
+    public ResponseEntity<Void> deleteFilm(@PathVariable int filmId) {
+        filmService.deleteFilm(filmId);
+        log.info("FilmController: фильм с id: {} удалён", filmId);
+        return ResponseEntity.noContent().build();
+    }
 }

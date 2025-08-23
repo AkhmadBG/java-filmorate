@@ -140,4 +140,14 @@ public class JdbcUserRepository implements UserRepository {
         }
     }
 
+    @Override
+    public void deleteUser(int userId) {
+        if (!userExists(userId)) {
+            throw new NotFoundException("UserRepository: пользователь с id: " + userId + " не найден");
+        }
+        String query = "DELETE FROM users WHERE user_id = :user_id";
+        Map<String, Object> params = Map.of("user_id", userId);
+        namedJdbc.update(query, params);
+        log.info("UserRepository: пользователь с id: {} удалён", userId);
+    }
 }

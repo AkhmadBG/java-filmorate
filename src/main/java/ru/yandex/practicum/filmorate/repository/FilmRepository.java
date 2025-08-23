@@ -22,4 +22,6 @@ public interface FilmRepository {
 
     List<Film> getTopPopular(int count);
 
+    void deleteFilm(int filmId);
+
 }

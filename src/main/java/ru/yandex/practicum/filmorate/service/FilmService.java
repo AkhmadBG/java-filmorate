@@ -23,4 +23,5 @@ public interface FilmService {
 
     Set<FilmDto> getTopFilms(int count);
 
+    void deleteFilm(int filmId);
 }

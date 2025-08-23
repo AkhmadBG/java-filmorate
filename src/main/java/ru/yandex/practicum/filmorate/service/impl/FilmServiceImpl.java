@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.repository.FilmRepository;
@@ -77,4 +78,12 @@ public class FilmServiceImpl implements FilmService {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
+    @Override
+    public void deleteFilm(int filmId) {
+        if (!filmRepository.filmExists(filmId)) {
+            throw new NotFoundException("FilmServiceImpl: фильм с id: " + filmId + " не найден");
+        }
+        filmRepository.deleteFilm(filmId);
+        log.info("FilmServiceImpl: фильм с id: {} удалён", filmId);
+    }
 }

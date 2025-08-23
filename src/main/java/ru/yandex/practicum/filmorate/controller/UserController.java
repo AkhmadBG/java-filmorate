@@ -74,4 +74,10 @@ public class UserController {
         return ResponseEntity.ok(userService.getCommonFriendsList(userId, otherId));
     }
 
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Void> deleteUser(@PathVariable int userId) {
+        userService.deleteUser(userId);
+        log.info("UserController: пользователь с id: {} удалён", userId);
+        return ResponseEntity.noContent().build();
+    }
 }
