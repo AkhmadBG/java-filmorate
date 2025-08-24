@@ -195,7 +195,7 @@ class JdbcFilmRepositoryTest {
         filmRepository.addLike(2, 2);
         filmRepository.addLike(3, 1);
 
-        List<Film> topPopular = filmRepository.getTopPopular(3);
+        List<Film> topPopular = filmRepository.getTopPopular(3,null,2002);
 
         Film film1 = filmRepository.getFilmById(1);
         Film film2 = filmRepository.getFilmById(2);
@@ -203,7 +203,7 @@ class JdbcFilmRepositoryTest {
 
         AssertionsForInterfaceTypes.assertThat(topPopular)
                 .isNotNull()
-                .containsExactly(film1, film2, film3);
+                .containsExactly(film2);
     }
 
 }
