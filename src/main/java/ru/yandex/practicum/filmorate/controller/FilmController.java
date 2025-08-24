@@ -5,12 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.FilmSortBy;
-import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.repository.dto.FilmDto;
 import ru.yandex.practicum.filmorate.repository.dto.NewFilmRequest;
 import ru.yandex.practicum.filmorate.repository.dto.UpdateFilmRequest;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RestController
@@ -66,6 +67,7 @@ public class FilmController {
         log.info("FilmController: запрошен топ {} фильмов", count);
         return ResponseEntity.ok(filmService.getTopFilms(count));
     }
+
     @GetMapping("/search")
     public List<FilmDto> searchFilms(
             @RequestParam String query,
@@ -76,7 +78,7 @@ public class FilmController {
 
     @GetMapping("/common")
     public List<FilmDto> getCommonFilms(@RequestParam int userId,
-                                     @RequestParam int friendId) {
+                                        @RequestParam int friendId) {
         log.debug("FilmController: API GET /films/common userId={}, friendId={}", userId, friendId);
         return filmService.getCommonFilms(userId, friendId);
     }
