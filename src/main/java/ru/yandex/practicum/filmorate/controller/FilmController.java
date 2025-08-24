@@ -66,4 +66,11 @@ public class FilmController {
         return ResponseEntity.ok(filmService.getTopFilms(count));
     }
 
+    @GetMapping("/common")
+    public List<FilmDto> getCommonFilms(@RequestParam int userId,
+                                     @RequestParam int friendId) {
+        log.debug("FilmController: API GET /films/common userId={}, friendId={}", userId, friendId);
+        return filmService.getCommonFilms(userId, friendId);
+    }
+
 }

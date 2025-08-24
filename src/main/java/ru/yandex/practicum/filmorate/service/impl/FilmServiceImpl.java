@@ -77,4 +77,13 @@ public class FilmServiceImpl implements FilmService {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
+    @Override
+    public List<FilmDto> getCommonFilms(int userId, int friendId) {
+        log.debug("FilmServiceImpl: запрос в сервис: userId={}, friendId={}", userId, friendId);
+        List<Film> commonFilms = filmRepository.getCommonFilms(userId, friendId);
+        return commonFilms.stream()
+                .map(FilmMapper::mapToFilmDto)
+                .collect(Collectors.toList());
+    }
+
 }
