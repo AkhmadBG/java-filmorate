@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.FilmSortBy;
 import ru.yandex.practicum.filmorate.repository.FilmRepository;
 import ru.yandex.practicum.filmorate.repository.dto.FilmDto;
 import ru.yandex.practicum.filmorate.repository.dto.NewFilmRequest;
@@ -82,6 +83,15 @@ public class FilmServiceImpl implements FilmService {
         log.debug("FilmServiceImpl: запрос в сервис: userId={}, friendId={}", userId, friendId);
         List<Film> commonFilms = filmRepository.getCommonFilms(userId, friendId);
         return commonFilms.stream()
+                .map(FilmMapper::mapToFilmDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<FilmDto> getFilmsByDirector(int directorId, FilmSortBy sortBy) {
+        log.info("FilmController: запрошен список фильмов режиссера с id = {} и отсортированный по {}", directorId, sortBy);
+        List<Film> filmByDirector = filmRepository.getFilmsByDirector(directorId, sortBy);
+        return filmByDirector.stream()
                 .map(FilmMapper::mapToFilmDto)
                 .collect(Collectors.toList());
     }

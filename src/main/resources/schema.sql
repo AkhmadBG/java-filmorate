@@ -26,6 +26,11 @@ CREATE TABLE IF NOT EXISTS users (
     birthday DATE
 );
 
+CREATE TABLE IF NOT EXISTS directors (
+    director_id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS user_friendships (
     user_id INTEGER,
     friend_id INTEGER,
@@ -49,4 +54,12 @@ CREATE TABLE IF NOT EXISTS films_genres (
     PRIMARY KEY (film_id, genre_id),
     FOREIGN KEY (film_id) REFERENCES films(film_id) ON DELETE CASCADE,
     FOREIGN KEY (genre_id) REFERENCES genres(genre_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS films_directors (
+    film_id INTEGER,
+    director_id INTEGER,
+    PRIMARY KEY (film_id, director_id),
+    FOREIGN KEY (film_id) REFERENCES films(film_id) ON DELETE CASCADE,
+    FOREIGN KEY (director_id) REFERENCES directors(director_id) ON DELETE CASCADE
 );
