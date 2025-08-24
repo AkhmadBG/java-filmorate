@@ -30,7 +30,7 @@ public class FilmServiceImpl implements FilmService {
         FilmValidator.validator(newFilmRequest);
         Film film = filmRepository.addFilm(FilmMapper.mapToFilm(newFilmRequest));
         log.info("FilmServiceImpl: новый фильм {}, с id {} добавлен", film.getName(), film.getId());
-        return FilmMapper.mapToFilmDto(filmRepository.addFilm(film));
+        return FilmMapper.mapToFilmDto(film);
     }
 
     @Override
