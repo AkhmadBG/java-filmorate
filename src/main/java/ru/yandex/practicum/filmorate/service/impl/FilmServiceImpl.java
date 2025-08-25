@@ -89,6 +89,14 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
+    public List<FilmDto> searchFilms(String query, String by) {
+        List<Film> searchFilms = filmRepository.search(query, by);
+        return searchFilms.stream()
+                .map(FilmMapper::mapToFilmDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<FilmDto> getFilmsByDirector(int directorId, FilmSortBy sortBy) {
         log.info("FilmController: запрошен список фильмов режиссера с id = {} и отсортированный по {}", directorId, sortBy);
         List<Film> filmByDirector = filmRepository.getFilmsByDirector(directorId, sortBy);

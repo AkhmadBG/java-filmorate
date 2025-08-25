@@ -28,6 +28,8 @@ public interface FilmService {
 
     List<FilmDto> getCommonFilms(int userId, int friendId);
 
+    List<FilmDto> searchFilms(String query, String by);
+
     List<FilmDto> getFilmsByDirector(int directorId, FilmSortBy sortBy);
 
 }

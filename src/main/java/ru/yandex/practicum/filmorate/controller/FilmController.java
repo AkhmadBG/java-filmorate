@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import ru.yandex.practicum.filmorate.model.FilmSortBy;
-import ru.yandex.practicum.filmorate.service.FilmService;
-
 import ru.yandex.practicum.filmorate.repository.dto.FilmDto;
 import ru.yandex.practicum.filmorate.repository.dto.NewFilmRequest;
 import ru.yandex.practicum.filmorate.repository.dto.UpdateFilmRequest;
@@ -71,11 +68,21 @@ public class FilmController {
         return ResponseEntity.ok(filmService.getTopFilms(count));
     }
 
+
+    @GetMapping("/search")
+    public List<FilmDto> searchFilms(
+            @RequestParam String query,
+            @RequestParam String by
+    ) {
+        return filmService.searchFilms(query, by);
+    }
+
     @DeleteMapping("/{filmId}")
     public ResponseEntity<Void> deleteFilm(@PathVariable int filmId) {
         filmService.deleteFilm(filmId);
         log.info("FilmController: фильм с id: {} удалён", filmId);
         return ResponseEntity.noContent().build();
+
     }
 
     @GetMapping("/common")
