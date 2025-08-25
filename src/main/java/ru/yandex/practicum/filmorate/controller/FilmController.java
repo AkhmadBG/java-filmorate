@@ -4,12 +4,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import ru.yandex.practicum.filmorate.model.FilmSortBy;
 import ru.yandex.practicum.filmorate.service.FilmService;
+
 import ru.yandex.practicum.filmorate.repository.dto.FilmDto;
 import ru.yandex.practicum.filmorate.repository.dto.NewFilmRequest;
 import ru.yandex.practicum.filmorate.repository.dto.UpdateFilmRequest;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RestController
@@ -72,4 +77,24 @@ public class FilmController {
         log.info("FilmController: фильм с id: {} удалён", filmId);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/common")
+    public List<FilmDto> getCommonFilms(@RequestParam int userId,
+                                        @RequestParam int friendId) {
+        log.debug("FilmController: API GET /films/common userId={}, friendId={}", userId, friendId);
+        return filmService.getCommonFilms(userId, friendId);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public ResponseEntity<List<FilmDto>> getFilmsByDirector(@PathVariable(value = "directorId") int directorId,
+                                                            @RequestParam(value = "sortBy") String sortByString) {
+        FilmSortBy sortBy = switch (sortByString) {
+            case "likes" -> FilmSortBy.LIKES;
+            case "year" -> FilmSortBy.YEAR;
+            default -> throw new RuntimeException("Параметр сортировки " + sortByString + " указан неверно");
+        };
+        log.info("FilmController: запрошен список фильмов режиссера с id = {} и отсортированный по {}", directorId, sortBy);
+        return ResponseEntity.ok(filmService.getFilmsByDirector(directorId, sortBy));
+    }
+
 }
