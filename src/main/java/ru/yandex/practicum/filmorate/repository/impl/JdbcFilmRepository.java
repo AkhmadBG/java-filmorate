@@ -21,8 +21,6 @@ import ru.yandex.practicum.filmorate.repository.MpaRepository;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toList;
-
 @Slf4j
 @Repository
 @RequiredArgsConstructor
@@ -226,8 +224,8 @@ public class JdbcFilmRepository implements FilmRepository {
     }
 
     @Override
-    public List<Film> getTopPopular(int count) {
-        String queryTopPopularFilms = "SELECT f.film_id, " +
+    public List<Film> getTopPopular(int count, Integer genreId, Integer year) {
+        StringBuilder query = new StringBuilder("SELECT f.film_id, " +
                 "f.name AS film_name, " +
                 "f.description, " +
                 "f.release_date, " +
@@ -245,8 +243,28 @@ public class JdbcFilmRepository implements FilmRepository {
                 "LEFT JOIN films_genres AS fg ON f.film_id = fg.film_id " +
                 "LEFT JOIN genres AS g ON fg.genre_id = g.genre_id " +
                 "LEFT JOIN films_directors AS fd ON f.film_id = fd.film_id " +
-                "LEFT JOIN directors AS d ON fd.director_id = d.director_id";
-        List<Film> allFilms = namedJdbc.query(queryTopPopularFilms, new FilmsExtractor());
+                "LEFT JOIN directors AS d ON fd.director_id = d.director_id");
+
+        Map<String, Object> param = new HashMap<>();
+        boolean hasWhereClause = false;
+
+        if (genreId != null) {
+            query.append(" WHERE g.genre_id = :genreId");
+            param.put("genreId", genreId);
+            hasWhereClause = true;
+        }
+
+        if (year != null) {
+            if (hasWhereClause) {
+                query.append(" AND ");
+            } else {
+                query.append(" WHERE ");
+            }
+            query.append("EXTRACT(YEAR FROM f.release_date) = :releaseYear");
+            param.put("releaseYear", year);
+        }
+
+        List<Film> allFilms = namedJdbc.query(query.toString(), param, new FilmsExtractor());
         if (allFilms == null) {
             throw new NotFoundException("FilmRepository: фильмы не найдены");
         }
@@ -256,7 +274,7 @@ public class JdbcFilmRepository implements FilmRepository {
                 .sorted(Comparator.comparingInt((Film film) ->
                         film.getLikeUserList() != null ? film.getLikeUserList().size() : 0).reversed())
                 .limit(count)
-                .collect(toList());
+                .collect(Collectors.toList());
     }
 
     @Override
