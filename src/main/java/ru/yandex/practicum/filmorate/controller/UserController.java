@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.UserEvents;
 import ru.yandex.practicum.filmorate.repository.dto.FilmDto;
 import ru.yandex.practicum.filmorate.repository.dto.NewUserRequest;
 import ru.yandex.practicum.filmorate.repository.dto.UpdateUserRequest;
@@ -92,4 +93,11 @@ public class UserController {
         log.info("Возвращено {} рекомендаций для пользователя ID: {}", recommendations.size(), userId);
         return ResponseEntity.ok(recommendations);
     }
+
+    @GetMapping("/{id}/feed")
+    public ResponseEntity<List<UserEvents>> getUserFeeds(@PathVariable(value = "id") int userId) {
+        log.info("UserController: запрошена лента событий для пользователя id {}", userId);
+        return ResponseEntity.ok(userService.getUserFeeds(userId));
+    }
+
 }
