@@ -24,4 +24,5 @@ public interface UserService {
 
     List<UserDto> getCommonFriendsList(int userId, int otherId);
 
+    void deleteUser(int userId);
 }

@@ -24,6 +24,8 @@ public interface FilmService {
 
     Set<FilmDto> getTopFilms(int count);
 
+    void deleteFilm(int filmId);
+
     List<FilmDto> getCommonFilms(int userId, int friendId);
 
     List<FilmDto> searchFilms(String query, String by);

@@ -106,4 +106,12 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public void deleteUser(int userId) {
+        if (!userRepository.userExists(userId)) {
+            throw new NotFoundException("UserServiceImpl: пользователь с id: " + userId + " не найден");
+        }
+        userRepository.deleteUser(userId);
+        log.info("UserServiceImpl: пользователь с id: {} удалён", userId);
+    }
 }
