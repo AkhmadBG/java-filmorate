@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.repository;
 
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.UserEvents;
 
 import java.util.List;
 import java.util.Map;
@@ -30,4 +31,6 @@ public interface UserRepository {
      * @return Map, где ключ - ID похожего пользователя, значение - количество общих лайков
      */
     Map<Integer, Integer> findUsersWithCommonLikes(int userId);
+
+    List<UserEvents> userEvent(int userId);
 }

@@ -8,12 +8,15 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.mappers.UserEventsExtractor;
 import ru.yandex.practicum.filmorate.mappers.UserExtractor;
 import ru.yandex.practicum.filmorate.mappers.UsersExtractor;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.UserEvents;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
 
 import java.sql.ResultSet;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,6 +72,10 @@ public class JdbcUserRepository implements UserRepository {
             throw new NotFoundException("UserRepository: попытка добавления в друзья пользователю с id: " + userId +
                     " пользователя с id: " + friendId + " не удалась");
         }
+        String queryAddFeed = "INSERT INTO feed_event (user_id,event_type,operation,entity_id,timestamp)" +
+                " VALUES (:user_id,'FRIEND','ADD',:entity_id,:timestamp)";
+        namedJdbc.update(queryAddFeed,Map.of("user_id",userId,"entity_id",friendId,"timestamp", Instant.now().toEpochMilli()));
+        log.info("UserRepository: пользователю {} добавилось событие с добавление пользователя!",userId);
     }
 
     @Override
@@ -83,6 +90,10 @@ public class JdbcUserRepository implements UserRepository {
         Map<String, Object> params = Map.of("user_id", userId, "friend_id", friendId);
         namedJdbc.update(queryDeleteFriend, params);
         log.info("UserRepository: пользователи с id: {} и {} теперь не друзья", userId, friendId);
+        String queryAddFeed = "INSERT INTO feed_event (user_id,event_type,operation,entity_id,timestamp)" +
+                " VALUES (:user_id,'FRIEND','REMOVE',:entity_id,:timestamp)";
+        namedJdbc.update(queryAddFeed,Map.of("user_id",userId,"entity_id",friendId,"timestamp", Instant.now().toEpochMilli()));
+        log.info("UserRepository: пользователю {} добавилось событие с удалением пользователя!",userId);
     }
 
     @Override
@@ -179,4 +190,19 @@ public class JdbcUserRepository implements UserRepository {
             return result;
         });
     }
+
+    @Override
+    public List<UserEvents> userEvent(int userId) {
+        String queryFeed = "SELECT " +
+                "timestamp, " +
+                "user_id, " +
+                "event_type, " +
+                "operation, " +
+                "event_id, " +
+                "entity_id " +
+                "FROM feed_event " +
+                "WHERE feed_event.user_id = :userId;";
+        return namedJdbc.query(queryFeed, Map.of("userId", userId), new UserEventsExtractor());
+    }
+
 }

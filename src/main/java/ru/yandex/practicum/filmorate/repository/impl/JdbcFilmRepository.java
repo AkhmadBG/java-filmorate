@@ -18,6 +18,7 @@ import ru.yandex.practicum.filmorate.repository.FilmRepository;
 import ru.yandex.practicum.filmorate.repository.GenreRepository;
 import ru.yandex.practicum.filmorate.repository.MpaRepository;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -214,6 +215,10 @@ public class JdbcFilmRepository implements FilmRepository {
         String queryAddLike = "INSERT INTO likes (film_id, user_id) VALUES (:film_id, :user_id)";
         namedJdbc.update(queryAddLike, Map.of("film_id", filmId, "user_id", userId));
         log.info("FilmRepository: к фильму с id: {} добавлен like от пользователя с id: {}", filmId, userId);
+        String queryAddFeed = "INSERT INTO feed_event (user_id, event_type, operation, entity_id, timestamp) " +
+                "VALUES (:user_id,'LIKE','ADD', :entity_id, :timestamp)";
+        namedJdbc.update(queryAddFeed,Map.of("user_id",userId,"entity_id",filmId,"timestamp", Instant.now().toEpochMilli()));
+        log.info("FilmRepository: в ленту событий добавилось событие с добавление like к фильму у пользователю:{}",userId);
     }
 
     @Override
@@ -221,6 +226,10 @@ public class JdbcFilmRepository implements FilmRepository {
         String queryRemoveLike = "DELETE FROM likes WHERE film_id = :film_id AND user_id = :user_id";
         namedJdbc.update(queryRemoveLike, Map.of("film_id", filmId, "user_id", userId));
         log.info("FilmRepository: у фильма с id: {} удален like от пользователя с id: {}", filmId, userId);
+        String queryAddFeed = "INSERT INTO feed_event (user_id, event_type, operation, entity_id, timestamp) " +
+                "VALUES (:user_id,'LIKE','REMOVE', :entity_id, :timestamp)";
+        namedJdbc.update(queryAddFeed,Map.of("user_id",userId,"entity_id",filmId,"timestamp",Instant.now().toEpochMilli()));
+        log.info("FilmRepository: в ленту событий добавилось событие с удалением like у пользователя:{}",userId);
     }
 
     @Override
