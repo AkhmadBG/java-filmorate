@@ -75,32 +75,33 @@ public class FilmController {
             @RequestParam String by
     ) {
         return filmService.searchFilms(query, by);
+    }
 
-        @DeleteMapping("/{filmId}")
-        public ResponseEntity<Void> deleteFilm ( @PathVariable int filmId){
-            filmService.deleteFilm(filmId);
-            log.info("FilmController: фильм с id: {} удалён", filmId);
-            return ResponseEntity.noContent().build();
-
-        }
-
-        @GetMapping("/common")
-        public List<FilmDto> getCommonFilms ( @RequestParam int userId,
-        @RequestParam int friendId){
-            log.debug("FilmController: API GET /films/common userId={}, friendId={}", userId, friendId);
-            return filmService.getCommonFilms(userId, friendId);
-        }
-
-        @GetMapping("/director/{directorId}")
-        public ResponseEntity<List<FilmDto>> getFilmsByDirector ( @PathVariable(value = "directorId") int directorId,
-        @RequestParam(value = "sortBy") String sortByString){
-            FilmSortBy sortBy = switch (sortByString) {
-                case "likes" -> FilmSortBy.LIKES;
-                case "year" -> FilmSortBy.YEAR;
-                default -> throw new RuntimeException("Параметр сортировки " + sortByString + " указан неверно");
-            };
-            log.info("FilmController: запрошен список фильмов режиссера с id = {} и отсортированный по {}", directorId, sortBy);
-            return ResponseEntity.ok(filmService.getFilmsByDirector(directorId, sortBy));
-        }
+    @DeleteMapping("/{filmId}")
+    public ResponseEntity<Void> deleteFilm(@PathVariable int filmId) {
+        filmService.deleteFilm(filmId);
+        log.info("FilmController: фильм с id: {} удалён", filmId);
+        return ResponseEntity.noContent().build();
 
     }
+
+    @GetMapping("/common")
+    public List<FilmDto> getCommonFilms(@RequestParam int userId,
+                                        @RequestParam int friendId) {
+        log.debug("FilmController: API GET /films/common userId={}, friendId={}", userId, friendId);
+        return filmService.getCommonFilms(userId, friendId);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public ResponseEntity<List<FilmDto>> getFilmsByDirector(@PathVariable(value = "directorId") int directorId,
+                                                            @RequestParam(value = "sortBy") String sortByString) {
+        FilmSortBy sortBy = switch (sortByString) {
+            case "likes" -> FilmSortBy.LIKES;
+            case "year" -> FilmSortBy.YEAR;
+            default -> throw new RuntimeException("Параметр сортировки " + sortByString + " указан неверно");
+        };
+        log.info("FilmController: запрошен список фильмов режиссера с id = {} и отсортированный по {}", directorId, sortBy);
+        return ResponseEntity.ok(filmService.getFilmsByDirector(directorId, sortBy));
+    }
+
+}
