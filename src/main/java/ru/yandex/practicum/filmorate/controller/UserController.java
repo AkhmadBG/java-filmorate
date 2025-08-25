@@ -5,11 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.repository.dto.FilmDto;
-import ru.yandex.practicum.filmorate.service.RecommendationService;
-import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.repository.dto.NewUserRequest;
 import ru.yandex.practicum.filmorate.repository.dto.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.repository.dto.UserDto;
+import ru.yandex.practicum.filmorate.service.RecommendationService;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.List;
 
@@ -38,8 +38,9 @@ public class UserController {
 
     @GetMapping()
     public ResponseEntity<List<UserDto>> allUsers() {
-        log.info("UserController: количество всех пользователей: {}", userService.allUsers().size());
-        return ResponseEntity.ok(userService.allUsers());
+        List<UserDto> allUsers = userService.allUsers();
+        log.info("UserController: количество всех пользователей: {}", allUsers.size());
+        return ResponseEntity.ok(allUsers);
     }
 
     @GetMapping("/{userId}")
