@@ -21,8 +21,6 @@ import ru.yandex.practicum.filmorate.repository.MpaRepository;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toList;
-
 @Slf4j
 @Repository
 @RequiredArgsConstructor
