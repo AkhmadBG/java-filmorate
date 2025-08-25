@@ -71,9 +71,9 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public Set<FilmDto> getTopFilms(int count) {
-        log.info("FilmServiceImpl: запрос топ-" + count + " фильмов");
-        List<Film> topPopular = filmRepository.getTopPopular(count);
+    public Set<FilmDto> getTopFilms(int count, Integer genreId, Integer year) {
+        log.info("FilmServiceImpl: запрос топ-" + count + " фильмов с параметрами (" + genreId + "," + year + " )");
+        List<Film> topPopular = filmRepository.getTopPopular(count, genreId, year);
         return topPopular.stream()
                 .map(FilmMapper::mapToFilmDto)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
