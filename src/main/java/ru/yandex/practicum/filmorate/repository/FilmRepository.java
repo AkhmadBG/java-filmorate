@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.repository;
 
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.FilmSortBy;
 
 import java.util.List;
 

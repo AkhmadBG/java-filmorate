@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.FilmSortBy;
 import ru.yandex.practicum.filmorate.repository.FilmRepository;
 import ru.yandex.practicum.filmorate.repository.dto.FilmDto;
 import ru.yandex.practicum.filmorate.repository.dto.NewFilmRequest;

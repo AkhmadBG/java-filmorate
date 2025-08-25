@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import ru.yandex.practicum.filmorate.model.FilmSortBy;
 import ru.yandex.practicum.filmorate.repository.dto.FilmDto;
 import ru.yandex.practicum.filmorate.repository.dto.NewFilmRequest;
 import ru.yandex.practicum.filmorate.repository.dto.UpdateFilmRequest;
