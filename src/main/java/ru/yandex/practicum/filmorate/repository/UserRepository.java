@@ -21,6 +21,6 @@ public interface UserRepository {
 
     void updateUser(User user);
 
-    List<UserEvents> userEvent (int userId);
+    List<UserEvents> userEvent(int userId);
 
 }
