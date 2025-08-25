@@ -29,4 +29,11 @@ public interface FilmRepository {
 
     List<Film> getFilmsByDirector(int directorId, FilmSortBy sortBy);
 
+    /**
+     * Находит фильмы, которые лайкнул один пользователь, но не лайкнул другой
+     * @param sourceUserId ID пользователя который лайкнул фильмы
+     * @param targetUserId ID пользователя который не лайкнул фильмы
+     * @return Список рекомендованных фильмов
+     */
+    List<Film> getRecommendedFilms(int sourceUserId, int targetUserId);
 }

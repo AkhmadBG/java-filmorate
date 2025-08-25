@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.repository.dto.FilmDto;
 import ru.yandex.practicum.filmorate.repository.dto.NewUserRequest;
 import ru.yandex.practicum.filmorate.repository.dto.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.repository.dto.UserDto;
+import ru.yandex.practicum.filmorate.service.RecommendationService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.List;
@@ -18,6 +20,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final RecommendationService recommendationService;
 
     @PostMapping
     public ResponseEntity<UserDto> addUser(@RequestBody NewUserRequest newUserRequest) {
@@ -80,5 +83,13 @@ public class UserController {
         userService.deleteUser(userId);
         log.info("UserController: пользователь с id: {} удалён", userId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{userId}/recommendations")
+    public ResponseEntity<List<FilmDto>> getRecommendations(@PathVariable int userId) {
+        log.info("Запрос рекомендаций для пользователя с ID: {}", userId);
+        List<FilmDto> recommendations = recommendationService.getRecommendations(userId);
+        log.info("Возвращено {} рекомендаций для пользователя ID: {}", recommendations.size(), userId);
+        return ResponseEntity.ok(recommendations);
     }
 }
