@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.repository.dto;
 
 import lombok.Data;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
@@ -21,5 +22,7 @@ public class NewFilmRequest {
     private Mpa mpa;
 
     private Set<Genre> genres;
+
+    private Set<Director> directors;
 
 }

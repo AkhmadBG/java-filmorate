@@ -28,7 +28,7 @@ public class JdbcUserRepository implements UserRepository {
         String query = "SELECT COUNT(*) FROM users WHERE user_id = :user_id";
         Map<String, Object> params = Map.of("user_id", userId);
         Integer count = namedJdbc.queryForObject(query, params, Integer.class);
-        log.info("UserRepository: проверка существования пользователя с id: {}", userId);
+        log.info("JdbcUserRepository: проверка существования пользователя с id: {}", userId);
         return count == null || count > 0;
     }
 
@@ -42,7 +42,7 @@ public class JdbcUserRepository implements UserRepository {
             throw new NotFoundException("пользователь с id: " + userId + " не найден");
         }
         try {
-            log.info("UserRepository: запрос пользователя с id: {}", userId);
+            log.info("JdbcUserRepository: запрос пользователя с id: {}", userId);
             Map<String, Object> params = Map.of("user_id", userId);
             return namedJdbc.query(queryUser, params, new UserExtractor());
         } catch (EmptyResultDataAccessException e) {
