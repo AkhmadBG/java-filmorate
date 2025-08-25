@@ -21,6 +21,7 @@ public interface UserRepository {
 
     void updateUser(User user);
 
+    void deleteUser(int userId);
     /**
      * Находит пользователей с общими лайками с указанным пользователем
      * @param userId ID пользователя для поиска похожих

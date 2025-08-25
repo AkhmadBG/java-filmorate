@@ -349,6 +349,17 @@ public class JdbcFilmRepository implements FilmRepository {
         }
     }
 
+    @Override
+    public void deleteFilm(int filmId) {
+        if (!filmExists(filmId)) {
+            throw new NotFoundException("FilmRepository: фильм с id: " + filmId + " не найден");
+        }
+        String query = "DELETE FROM films WHERE film_id = :film_id";
+        Map<String, Object> params = Map.of("film_id", filmId);
+        namedJdbc.update(query, params);
+        log.info("FilmRepository: фильм с id: {} удалён", filmId);
+    }
+
     /**
      * Находит фильмы, которые лайкнул один пользователь, но не лайкнул другой пользователь.
      * Используется для формирования рекомендаций на основе коллаборативной фильтрации.

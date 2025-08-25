@@ -23,6 +23,8 @@ public interface FilmRepository {
 
     List<Film> getTopPopular(int count);
 
+    void deleteFilm(int filmId);
+
     List<Film> getCommonFilms(int userId, int friendId);
 
     List<Film> getFilmsByDirector(int directorId, FilmSortBy sortBy);
