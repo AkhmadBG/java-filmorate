@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
 
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +18,6 @@ import java.util.List;
 public class ReviewController {
     private final ReviewService reviewService;
 
-    // POST /reviews
     @PostMapping
     public ResponseEntity<ReviewDto> createReview(@RequestBody NewReviewRequest request) {
         ReviewDto reviewDto = reviewService.createReview(request);
@@ -27,7 +25,6 @@ public class ReviewController {
         return ResponseEntity.ok(reviewDto);
     }
 
-    // PUT /reviews
     @PutMapping
     public ResponseEntity<ReviewDto> updateReview(@RequestBody UpdateReviewRequest request) {
         ReviewDto reviewDto = reviewService.updateReview(request);
@@ -35,7 +32,6 @@ public class ReviewController {
         return ResponseEntity.ok(reviewDto);
     }
 
-    // DELETE /reviews/{id}
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteReview(@PathVariable int id) {
         log.info("Получен запрос на удаление отзыва {}", id);
@@ -43,14 +39,12 @@ public class ReviewController {
         return ResponseEntity.noContent().build();
     }
 
-    // GET /reviews/{id}
     @GetMapping("/{id}")
     public ResponseEntity<ReviewDto> getReviewById(@PathVariable int id) {
         log.info("Получен запрос на получение отзыва {}", id);
         return ResponseEntity.ok(reviewService.getReviewById(id));
     }
 
-    // GET /reviews?filmId={filmId}&count={count}
     @GetMapping
     public ResponseEntity<List<ReviewDto>> getReviewsByFilm(
             @RequestParam(defaultValue = "0") int filmId,
@@ -82,6 +76,5 @@ public class ReviewController {
         reviewService.deleteDislikeReview(id, userId);
         return ResponseEntity.ok(reviewService.getReviewById(id));
     }
-
 
 }

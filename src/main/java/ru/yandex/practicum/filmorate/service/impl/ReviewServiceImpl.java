@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.mappers.ReviewMap.ReviewMapper;
+import ru.yandex.practicum.filmorate.mappers.reviewMap.ReviewMapper;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.repository.FilmRepository;
 import ru.yandex.practicum.filmorate.repository.ReviewRepository;
@@ -130,4 +130,5 @@ public class ReviewServiceImpl implements ReviewService {
         if (review == null) throw new NotFoundException("Отзыв не найден");
         return ReviewMapper.mapToReviewDto(review);
     }
+
 }

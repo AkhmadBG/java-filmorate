@@ -1,9 +1,9 @@
 package ru.yandex.practicum.filmorate.service;
 
 import ru.yandex.practicum.filmorate.model.UserEvents;
-import ru.yandex.practicum.filmorate.repository.dto.NewUserRequest;
-import ru.yandex.practicum.filmorate.repository.dto.UpdateUserRequest;
-import ru.yandex.practicum.filmorate.repository.dto.UserDto;
+import ru.yandex.practicum.filmorate.repository.dto.user.NewUserRequest;
+import ru.yandex.practicum.filmorate.repository.dto.user.UpdateUserRequest;
+import ru.yandex.practicum.filmorate.repository.dto.user.UserDto;
 
 import java.util.List;
 

@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
 
-
 import ru.yandex.practicum.filmorate.repository.dto.review.NewReviewRequest;
 import ru.yandex.practicum.filmorate.repository.dto.review.ReviewDto;
 import ru.yandex.practicum.filmorate.repository.dto.review.UpdateReviewRequest;
@@ -26,6 +25,5 @@ public interface ReviewService {
     void deleteDislikeReview(int reviewId, int userId);
 
     ReviewDto getReviewById(int reviewID);
-
 
 }

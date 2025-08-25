@@ -8,9 +8,9 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.mappers.UserEventsExtractor;
-import ru.yandex.practicum.filmorate.mappers.UserExtractor;
-import ru.yandex.practicum.filmorate.mappers.UsersExtractor;
+import ru.yandex.practicum.filmorate.mappers.userMap.UserEventsExtractor;
+import ru.yandex.practicum.filmorate.mappers.userMap.UserExtractor;
+import ru.yandex.practicum.filmorate.mappers.userMap.UsersExtractor;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.UserEvents;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
@@ -74,8 +74,8 @@ public class JdbcUserRepository implements UserRepository {
         }
         String queryAddFeed = "INSERT INTO feed_event (user_id,event_type,operation,entity_id,timestamp)" +
                 " VALUES (:user_id,'FRIEND','ADD',:entity_id,:timestamp)";
-        namedJdbc.update(queryAddFeed,Map.of("user_id",userId,"entity_id",friendId,"timestamp", Instant.now().toEpochMilli()));
-        log.info("UserRepository: пользователю {} добавилось событие с добавление пользователя!",userId);
+        namedJdbc.update(queryAddFeed, Map.of("user_id", userId, "entity_id", friendId, "timestamp", Instant.now().toEpochMilli()));
+        log.info("UserRepository: пользователю {} добавилось событие с добавление пользователя!", userId);
     }
 
     @Override
@@ -92,8 +92,8 @@ public class JdbcUserRepository implements UserRepository {
         log.info("UserRepository: пользователи с id: {} и {} теперь не друзья", userId, friendId);
         String queryAddFeed = "INSERT INTO feed_event (user_id,event_type,operation,entity_id,timestamp)" +
                 " VALUES (:user_id,'FRIEND','REMOVE',:entity_id,:timestamp)";
-        namedJdbc.update(queryAddFeed,Map.of("user_id",userId,"entity_id",friendId,"timestamp", Instant.now().toEpochMilli()));
-        log.info("UserRepository: пользователю {} добавилось событие с удалением пользователя!",userId);
+        namedJdbc.update(queryAddFeed, Map.of("user_id", userId, "entity_id", friendId, "timestamp", Instant.now().toEpochMilli()));
+        log.info("UserRepository: пользователю {} добавилось событие с удалением пользователя!", userId);
     }
 
     @Override
@@ -164,13 +164,6 @@ public class JdbcUserRepository implements UserRepository {
         log.info("UserRepository: пользователь с id: {} удалён", userId);
     }
 
-    /**
-     * Поиск пользователей, которые лайкали те же фильмы, что и указанный пользователь,
-     * и возвращает список этих пользователей с количеством общих лайков, отсортированный по убыванию.
-     *
-     * @param userId ID пользователя для которого ищем похожих пользователей
-     * @return Map, где ключ - ID похожего пользователя, значение - количество общих лайков
-     */
     @Override
     public Map<Integer, Integer> findUsersWithCommonLikes(int userId) {
         String sql = "SELECT other_likes.user_id, COUNT(DISTINCT other_likes.film_id) as common_likes " +

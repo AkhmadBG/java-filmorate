@@ -1,9 +1,9 @@
 package ru.yandex.practicum.filmorate.service;
 
 import ru.yandex.practicum.filmorate.model.FilmSortBy;
-import ru.yandex.practicum.filmorate.repository.dto.FilmDto;
-import ru.yandex.practicum.filmorate.repository.dto.NewFilmRequest;
-import ru.yandex.practicum.filmorate.repository.dto.UpdateFilmRequest;
+import ru.yandex.practicum.filmorate.repository.dto.film.FilmDto;
+import ru.yandex.practicum.filmorate.repository.dto.film.NewFilmRequest;
+import ru.yandex.practicum.filmorate.repository.dto.film.UpdateFilmRequest;
 
 import java.util.List;
 import java.util.Set;

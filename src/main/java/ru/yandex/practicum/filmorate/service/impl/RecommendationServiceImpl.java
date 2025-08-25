@@ -4,11 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.mappers.FilmMapper;
+import ru.yandex.practicum.filmorate.mappers.filmMap.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.repository.FilmRepository;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
-import ru.yandex.practicum.filmorate.repository.dto.FilmDto;
+import ru.yandex.practicum.filmorate.repository.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.service.RecommendationService;
 
 import java.util.Collections;
@@ -57,15 +57,11 @@ public class RecommendationServiceImpl implements RecommendationService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Находит ID пользователя с максимальным количеством общих лайков
-     * @param similarUsers Map пользователей с количеством общих лайков
-     * @return ID самого похожего пользователя
-     */
     private Integer findMostSimilarUser(Map<Integer, Integer> similarUsers) {
         return similarUsers.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
                 .orElseThrow(() -> new IllegalStateException("Не удалось найти похожего пользователя"));
     }
+
 }

@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.repository.dto.review;
 
-
 import lombok.Data;
 
 @Data
@@ -11,4 +10,5 @@ public class UpdateReviewRequest {
     private String content;
 
     private Boolean isPositive;
+
 }

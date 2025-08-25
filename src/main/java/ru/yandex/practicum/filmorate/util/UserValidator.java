@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.util;
 
 import lombok.experimental.UtilityClass;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.repository.dto.NewUserRequest;
+import ru.yandex.practicum.filmorate.repository.dto.user.NewUserRequest;
 
 import java.time.LocalDate;
 

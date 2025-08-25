@@ -22,7 +22,6 @@ public class ReviewValidator {
             throw new ValidationException("ReviewValidator: Тип отзыва не может быть пустым");
         }
 
-
         if (request.getUserId() == null) {
             throw new ValidationException("Не указан пользователь или пользователь не найден");
         }
@@ -36,7 +35,6 @@ public class ReviewValidator {
         if (request.getFilmId() <= 0) {
             throw new NotFoundException("Id не может быть отрицательным числом");
         }
-
-
     }
+
 }

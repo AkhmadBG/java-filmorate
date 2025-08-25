@@ -9,9 +9,9 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.mappers.CommonFilmsExtractor;
-import ru.yandex.practicum.filmorate.mappers.FilmExtractor;
-import ru.yandex.practicum.filmorate.mappers.FilmsExtractor;
+import ru.yandex.practicum.filmorate.mappers.filmMap.CommonFilmsExtractor;
+import ru.yandex.practicum.filmorate.mappers.filmMap.FilmExtractor;
+import ru.yandex.practicum.filmorate.mappers.filmMap.FilmsExtractor;
 import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.repository.DirectorRepository;
 import ru.yandex.practicum.filmorate.repository.FilmRepository;
@@ -217,8 +217,8 @@ public class JdbcFilmRepository implements FilmRepository {
         log.info("FilmRepository: к фильму с id: {} добавлен like от пользователя с id: {}", filmId, userId);
         String queryAddFeed = "INSERT INTO feed_event (user_id, event_type, operation, entity_id, timestamp) " +
                 "VALUES (:user_id,'LIKE','ADD', :entity_id, :timestamp)";
-        namedJdbc.update(queryAddFeed,Map.of("user_id",userId,"entity_id",filmId,"timestamp", Instant.now().toEpochMilli()));
-        log.info("FilmRepository: в ленту событий добавилось событие с добавление like к фильму у пользователю:{}",userId);
+        namedJdbc.update(queryAddFeed, Map.of("user_id", userId, "entity_id", filmId, "timestamp", Instant.now().toEpochMilli()));
+        log.info("FilmRepository: в ленту событий добавилось событие с добавление like к фильму у пользователю:{}", userId);
     }
 
     @Override
@@ -228,8 +228,8 @@ public class JdbcFilmRepository implements FilmRepository {
         log.info("FilmRepository: у фильма с id: {} удален like от пользователя с id: {}", filmId, userId);
         String queryAddFeed = "INSERT INTO feed_event (user_id, event_type, operation, entity_id, timestamp) " +
                 "VALUES (:user_id,'LIKE','REMOVE', :entity_id, :timestamp)";
-        namedJdbc.update(queryAddFeed,Map.of("user_id",userId,"entity_id",filmId,"timestamp",Instant.now().toEpochMilli()));
-        log.info("FilmRepository: в ленту событий добавилось событие с удалением like у пользователя:{}",userId);
+        namedJdbc.update(queryAddFeed, Map.of("user_id", userId, "entity_id", filmId, "timestamp", Instant.now().toEpochMilli()));
+        log.info("FilmRepository: в ленту событий добавилось событие с удалением like у пользователя:{}", userId);
     }
 
     @Override
@@ -438,14 +438,6 @@ public class JdbcFilmRepository implements FilmRepository {
         log.info("FilmRepository: фильм с id: {} удалён", filmId);
     }
 
-    /**
-     * Находит фильмы, которые лайкнул один пользователь, но не лайкнул другой пользователь.
-     * Используется для формирования рекомендаций на основе коллаборативной фильтрации.
-     *
-     * @param sourceUserId ID пользователя, который лайкнул фильмы (похожий пользователь)
-     * @param targetUserId ID пользователя, для которого формируются рекомендации
-     * @return Список фильмов для рекомендации
-     */
     @Override
     public List<Film> getRecommendedFilms(int sourceUserId, int targetUserId) {
         log.info("FilmRepository: start : getRecommendedFilms");
@@ -481,4 +473,5 @@ public class JdbcFilmRepository implements FilmRepository {
         log.info("params: {}", params);
         return namedJdbc.query(sql, params, new FilmsExtractor());
     }
+
 }

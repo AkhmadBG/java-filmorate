@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.repository.dto.review;
 
-
 import lombok.Data;
 
 @Data
@@ -13,4 +12,5 @@ public class NewReviewRequest {
     private Integer userId;
 
     private Integer filmId;
+
 }

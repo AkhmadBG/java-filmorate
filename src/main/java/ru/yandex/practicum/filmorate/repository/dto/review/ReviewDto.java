@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.repository.dto.review;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
@@ -8,6 +7,7 @@ import java.util.Map;
 
 @Data
 public class ReviewDto {
+
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Integer reviewId;
 
