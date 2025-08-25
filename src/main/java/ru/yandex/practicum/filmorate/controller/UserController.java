@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.UserEvents;
 import ru.yandex.practicum.filmorate.repository.dto.NewUserRequest;
 import ru.yandex.practicum.filmorate.repository.dto.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.repository.dto.UserDto;
@@ -73,6 +74,12 @@ public class UserController {
                                                               @PathVariable(value = "otherId") int otherId) {
         log.info("UserController: запрошен список общих друзей пользователей с id {} и id {}", userId, otherId);
         return ResponseEntity.ok(userService.getCommonFriendsList(userId, otherId));
+    }
+
+    @GetMapping("/{id}/feed")
+    public ResponseEntity<List<UserEvents>> getUserFeeds(@PathVariable(value = "id") int userId) {
+        log.info("UserController: запрошена лента событий для пользователя id {}", userId);
+        return ResponseEntity.ok(userService.getUserFeeds(userId));
     }
 
 }
