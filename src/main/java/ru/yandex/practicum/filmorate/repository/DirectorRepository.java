@@ -7,7 +7,7 @@ import java.util.Set;
 
 public interface DirectorRepository {
 
-    boolean directorsExists(Set<Director> directors);
+    boolean directorsExists(List<Director> directors);
 
     Director getDirectorById(int directorId);
 

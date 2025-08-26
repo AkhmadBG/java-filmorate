@@ -9,8 +9,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class FilmExtractor implements ResultSetExtractor<Film> {
 
@@ -26,15 +25,15 @@ public class FilmExtractor implements ResultSetExtractor<Film> {
                 .description(rs.getString("description"))
                 .releaseDate(rs.getDate("release_date").toLocalDate())
                 .duration(rs.getInt("duration"))
-                .likeUserList(new HashSet<>())
+                .likeUserList(new ArrayList<>())
                 .mpa(new Mpa(rs.getInt("rating_id"), rs.getString("rating_name")))
-                .genres(new HashSet<>())
-                .directors(new HashSet<>())
+                .genres(new LinkedHashSet<>())
+                .directors(new ArrayList<>())
                 .build();
 
-        Set<Integer> likesUsersList = film.getLikeUserList();
-        Set<Genre> genres = film.getGenres();
-        Set<Director> directors = film.getDirectors();
+        List<Integer> likesUsersList = film.getLikeUserList();
+        LinkedHashSet<Genre> genres = film.getGenres();
+        List<Director> directors = film.getDirectors();
 
         int userId = rs.getInt("like_user_id");
         if (!rs.wasNull()) {

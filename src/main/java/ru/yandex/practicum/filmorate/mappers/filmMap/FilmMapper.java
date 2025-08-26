@@ -8,6 +8,8 @@ import ru.yandex.practicum.filmorate.repository.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.repository.dto.film.NewFilmRequest;
 import ru.yandex.practicum.filmorate.repository.dto.film.UpdateFilmRequest;
 
+import java.util.ArrayList;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class FilmMapper {
 
@@ -61,6 +63,8 @@ public final class FilmMapper {
 
         if (updateFilmRequest.hasDirectors()) {
             film.setDirectors(updateFilmRequest.getDirectors());
+        } else if (updateFilmRequest.getDirectors() == null) {
+            film.setDirectors(new ArrayList<>());
         }
     }
 

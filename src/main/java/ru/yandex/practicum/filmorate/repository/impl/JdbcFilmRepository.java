@@ -147,7 +147,7 @@ public class JdbcFilmRepository implements FilmRepository {
         log.info("FilmRepository: фильм с id: {} обновлен", film.getId());
     }
 
-    private void addGenresToFilm(int filmId, Set<Genre> genres) {
+    private void addGenresToFilm(int filmId, LinkedHashSet<Genre> genres) {
         String queryInsertFilmsGenres = "INSERT INTO films_genres (film_id, genre_id) VALUES (:film_id, :genre_id)";
         for (Genre genre : genres) {
             namedJdbc.update(queryInsertFilmsGenres, Map.of("film_id", filmId, "genre_id", genre.getId()));
@@ -155,7 +155,7 @@ public class JdbcFilmRepository implements FilmRepository {
         }
     }
 
-    private void addDirectorsToFilm(int filmId, Set<Director> directors) {
+    private void addDirectorsToFilm(int filmId, List<Director> directors) {
         String queryInsertFilmsDirectors = "INSERT INTO films_directors (film_id, director_id) VALUES (:film_id, :director_id)";
         for (Director director : directors) {
             namedJdbc.update(queryInsertFilmsDirectors, Map.of("film_id", filmId, "director_id", director.getId()));
@@ -174,12 +174,12 @@ public class JdbcFilmRepository implements FilmRepository {
             throw new NotFoundException("рейтинг с id " + (mpa != null ? mpa.getId() : "null") + " не существует");
         }
 
-        Set<Genre> genres = film.getGenres();
+        LinkedHashSet<Genre> genres = film.getGenres();
         if (genres != null && !genres.isEmpty() && !genreRepository.genreExists(genres)) {
             throw new NotFoundException("FilmRepository: один или несколько жанров не существуют");
         }
 
-        Set<Director> directors = film.getDirectors();
+        List<Director> directors = film.getDirectors();
         if (directors != null && !directors.isEmpty() && !directorRepository.directorsExists(directors)) {
             throw new NotFoundException("FilmRepository: один или несколько режиссеров не существуют");
         }
@@ -214,6 +214,13 @@ public class JdbcFilmRepository implements FilmRepository {
 
     @Override
     public void addLike(int filmId, int userId) {
+        String checkQuery = "SELECT COUNT(*) FROM likes WHERE film_id = :film_id AND user_id = :user_id";
+        Integer count = namedJdbc.queryForObject(checkQuery, Map.of("film_id", filmId, "user_id", userId), Integer.class);
+        if (count != null && count > 0) {
+            log.info("Пользователь {} уже лайкнул фильм {}", userId, filmId);
+            return;
+        }
+
         String queryAddLike = "INSERT INTO likes (film_id, user_id) VALUES (:film_id, :user_id)";
         namedJdbc.update(queryAddLike, Map.of("film_id", filmId, "user_id", userId));
         log.info("FilmRepository: к фильму с id: {} добавлен like от пользователя с id: {}", filmId, userId);
@@ -279,6 +286,19 @@ public class JdbcFilmRepository implements FilmRepository {
         if (allFilms == null) {
             throw new NotFoundException("FilmRepository: фильмы не найдены");
         }
+
+        for (Film film : allFilms) {
+            if (film.getGenres() != null) {
+                film.setGenres(
+                        new LinkedHashSet<>(
+                                film.getGenres().stream()
+                                        .sorted(Comparator.comparingInt(Genre::getId))
+                                        .toList()
+                        )
+                );
+            }
+        }
+
         log.info("FilmRepository: запрошен топ-{} список фильмов", count);
         return allFilms.stream()
                 .filter(Objects::nonNull)
