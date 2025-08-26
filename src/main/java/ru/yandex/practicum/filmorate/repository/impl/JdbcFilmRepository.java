@@ -44,25 +44,25 @@ public class JdbcFilmRepository implements FilmRepository {
     @Override
     public Film getFilmById(int filmId) {
         String queryFilm = "SELECT f.film_id, " +
-                           "f.name AS film_name, " +
-                           "f.description, " +
-                           "f.release_date, " +
-                           "f.duration, " +
-                           "r.rating_id, " +
-                           "r.name AS rating_name, " +
-                           "l.user_id AS like_user_id, " +
-                           "g.genre_id, " +
-                           "g.name AS genre_name, " +
-                           "d.director_id, " +
-                           "d.name AS director_name " +
-                           "FROM films AS f " +
-                           "LEFT JOIN rating_mpa AS r ON f.rating_id = r.rating_id " +
-                           "LEFT JOIN likes AS l ON f.film_id = l.film_id " +
-                           "LEFT JOIN films_genres AS fg ON f.film_id = fg.film_id " +
-                           "LEFT JOIN genres AS g ON fg.genre_id = g.genre_id " +
-                           "LEFT JOIN films_directors AS fd ON f.film_id = fd.film_id " +
-                           "LEFT JOIN directors AS d ON fd.director_id = d.director_id " +
-                           "WHERE f.film_id = :film_id;";
+                "f.name AS film_name, " +
+                "f.description, " +
+                "f.release_date, " +
+                "f.duration, " +
+                "r.rating_id, " +
+                "r.name AS rating_name, " +
+                "l.user_id AS like_user_id, " +
+                "g.genre_id, " +
+                "g.name AS genre_name, " +
+                "d.director_id, " +
+                "d.name AS director_name " +
+                "FROM films AS f " +
+                "LEFT JOIN rating_mpa AS r ON f.rating_id = r.rating_id " +
+                "LEFT JOIN likes AS l ON f.film_id = l.film_id " +
+                "LEFT JOIN films_genres AS fg ON f.film_id = fg.film_id " +
+                "LEFT JOIN genres AS g ON fg.genre_id = g.genre_id " +
+                "LEFT JOIN films_directors AS fd ON f.film_id = fd.film_id " +
+                "LEFT JOIN directors AS d ON fd.director_id = d.director_id " +
+                "WHERE f.film_id = :film_id;";
         if (!filmExists(filmId)) {
             throw new NotFoundException("фильм с id: " + filmId + " не найден");
         }
@@ -78,24 +78,24 @@ public class JdbcFilmRepository implements FilmRepository {
     @Override
     public List<Film> allFilms() {
         String queryFilms = "SELECT f.film_id, " +
-                            "f.name AS film_name, " +
-                            "f.description, " +
-                            "f.release_date, " +
-                            "f.duration, " +
-                            "r.rating_id, " +
-                            "r.name AS rating_name, " +
-                            "l.user_id AS like_user_id, " +
-                            "g.genre_id, " +
-                            "g.name AS genre_name, " +
-                            "d.director_id, " +
-                            "d.name AS director_name " +
-                            "FROM films AS f " +
-                            "LEFT JOIN rating_mpa AS r ON f.rating_id = r.rating_id " +
-                            "LEFT JOIN likes AS l ON f.film_id = l.film_id " +
-                            "LEFT JOIN films_genres AS fg ON f.film_id = fg.film_id " +
-                            "LEFT JOIN genres AS g ON fg.genre_id = g.genre_id " +
-                            "LEFT JOIN films_directors AS fd ON f.film_id = fd.film_id " +
-                            "LEFT JOIN directors AS d ON fd.director_id = d.director_id";
+                "f.name AS film_name, " +
+                "f.description, " +
+                "f.release_date, " +
+                "f.duration, " +
+                "r.rating_id, " +
+                "r.name AS rating_name, " +
+                "l.user_id AS like_user_id, " +
+                "g.genre_id, " +
+                "g.name AS genre_name, " +
+                "d.director_id, " +
+                "d.name AS director_name " +
+                "FROM films AS f " +
+                "LEFT JOIN rating_mpa AS r ON f.rating_id = r.rating_id " +
+                "LEFT JOIN likes AS l ON f.film_id = l.film_id " +
+                "LEFT JOIN films_genres AS fg ON f.film_id = fg.film_id " +
+                "LEFT JOIN genres AS g ON fg.genre_id = g.genre_id " +
+                "LEFT JOIN films_directors AS fd ON f.film_id = fd.film_id " +
+                "LEFT JOIN directors AS d ON fd.director_id = d.director_id";
         List<Film> allFilms = namedJdbc.query(queryFilms, new FilmsExtractor());
         log.info("FilmRepository: запрошен список всех фильмов, количество зарегистрированных фильмов: {}", allFilms.size());
         return allFilms;
@@ -104,7 +104,7 @@ public class JdbcFilmRepository implements FilmRepository {
     @Override
     public void updateFilm(Film film) {
         String queryUpdateFilm = "UPDATE films SET name = :name, description = :description, " +
-                                 "release_date = :release_date, duration = :duration WHERE film_id = :film_id";
+                "release_date = :release_date, duration = :duration WHERE film_id = :film_id";
 
         Map<String, Object> params = Map.of(
                 "film_id", film.getId(),
@@ -164,7 +164,7 @@ public class JdbcFilmRepository implements FilmRepository {
     @Override
     public Film addFilm(Film film) {
         String queryAddFilm = "INSERT INTO films (name, description, release_date, duration, rating_id) " +
-                              "VALUES (:name, :description, :release_date, :duration, :rating_id)";
+                "VALUES (:name, :description, :release_date, :duration, :rating_id)";
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
 
         Mpa mpa = film.getMpa();
@@ -216,7 +216,7 @@ public class JdbcFilmRepository implements FilmRepository {
         namedJdbc.update(queryAddLike, Map.of("film_id", filmId, "user_id", userId));
         log.info("FilmRepository: к фильму с id: {} добавлен like от пользователя с id: {}", filmId, userId);
         String queryAddFeed = "INSERT INTO feed_event (user_id, event_type, operation, entity_id, timestamp) " +
-                              "VALUES (:user_id,'LIKE','ADD', :entity_id, :timestamp)";
+                "VALUES (:user_id,'LIKE','ADD', :entity_id, :timestamp)";
         namedJdbc.update(queryAddFeed, Map.of("user_id", userId, "entity_id", filmId, "timestamp", Instant.now().toEpochMilli()));
         log.info("FilmRepository: в ленту событий добавилось событие с добавление like к фильму у пользователю:{}", userId);
     }
@@ -227,7 +227,7 @@ public class JdbcFilmRepository implements FilmRepository {
         namedJdbc.update(queryRemoveLike, Map.of("film_id", filmId, "user_id", userId));
         log.info("FilmRepository: у фильма с id: {} удален like от пользователя с id: {}", filmId, userId);
         String queryAddFeed = "INSERT INTO feed_event (user_id, event_type, operation, entity_id, timestamp) " +
-                              "VALUES (:user_id,'LIKE','REMOVE', :entity_id, :timestamp)";
+                "VALUES (:user_id,'LIKE','REMOVE', :entity_id, :timestamp)";
         namedJdbc.update(queryAddFeed, Map.of("user_id", userId, "entity_id", filmId, "timestamp", Instant.now().toEpochMilli()));
         log.info("FilmRepository: в ленту событий добавилось событие с удалением like у пользователя:{}", userId);
     }
@@ -235,24 +235,24 @@ public class JdbcFilmRepository implements FilmRepository {
     @Override
     public List<Film> getTopPopular(int count, Integer genreId, Integer year) {
         StringBuilder query = new StringBuilder("SELECT f.film_id, " +
-                                                "f.name AS film_name, " +
-                                                "f.description, " +
-                                                "f.release_date, " +
-                                                "f.duration, " +
-                                                "r.rating_id, " +
-                                                "r.name AS rating_name, " +
-                                                "l.user_id AS like_user_id, " +
-                                                "g.genre_id, " +
-                                                "g.name AS genre_name, " +
-                                                "d.director_id, " +
-                                                "d.name AS director_name " +
-                                                "FROM films AS f " +
-                                                "LEFT JOIN rating_mpa AS r ON f.rating_id = r.rating_id " +
-                                                "LEFT JOIN likes AS l ON f.film_id = l.film_id " +
-                                                "LEFT JOIN films_genres AS fg ON f.film_id = fg.film_id " +
-                                                "LEFT JOIN genres AS g ON fg.genre_id = g.genre_id " +
-                                                "LEFT JOIN films_directors AS fd ON f.film_id = fd.film_id " +
-                                                "LEFT JOIN directors AS d ON fd.director_id = d.director_id");
+                "f.name AS film_name, " +
+                "f.description, " +
+                "f.release_date, " +
+                "f.duration, " +
+                "r.rating_id, " +
+                "r.name AS rating_name, " +
+                "l.user_id AS like_user_id, " +
+                "g.genre_id, " +
+                "g.name AS genre_name, " +
+                "d.director_id, " +
+                "d.name AS director_name " +
+                "FROM films AS f " +
+                "LEFT JOIN rating_mpa AS r ON f.rating_id = r.rating_id " +
+                "LEFT JOIN likes AS l ON f.film_id = l.film_id " +
+                "LEFT JOIN films_genres AS fg ON f.film_id = fg.film_id " +
+                "LEFT JOIN genres AS g ON fg.genre_id = g.genre_id " +
+                "LEFT JOIN films_directors AS fd ON f.film_id = fd.film_id " +
+                "LEFT JOIN directors AS d ON fd.director_id = d.director_id");
 
         Map<String, Object> param = new HashMap<>();
         boolean hasWhereClause = false;
@@ -289,25 +289,25 @@ public class JdbcFilmRepository implements FilmRepository {
     @Override
     public List<Film> getFilmsByDirector(int directorId, FilmSortBy sortBy) {
         String queryFilmsByDirector = "SELECT f.film_id, " +
-                                      "f.name AS film_name, " +
-                                      "f.description, " +
-                                      "f.release_date, " +
-                                      "f.duration, " +
-                                      "r.rating_id, " +
-                                      "r.name AS rating_name, " +
-                                      "l.user_id AS like_user_id, " +
-                                      "g.genre_id, " +
-                                      "g.name AS genre_name, " +
-                                      "d.director_id, " +
-                                      "d.name AS director_name " +
-                                      "FROM films AS f " +
-                                      "LEFT JOIN rating_mpa AS r ON f.rating_id = r.rating_id " +
-                                      "LEFT JOIN likes AS l ON f.film_id = l.film_id " +
-                                      "LEFT JOIN films_genres AS fg ON f.film_id = fg.film_id " +
-                                      "LEFT JOIN genres AS g ON fg.genre_id = g.genre_id " +
-                                      "LEFT JOIN films_directors AS fd ON f.film_id = fd.film_id " +
-                                      "LEFT JOIN directors AS d ON fd.director_id = d.director_id " +
-                                      "WHERE d.director_id = :director_id";
+                "f.name AS film_name, " +
+                "f.description, " +
+                "f.release_date, " +
+                "f.duration, " +
+                "r.rating_id, " +
+                "r.name AS rating_name, " +
+                "l.user_id AS like_user_id, " +
+                "g.genre_id, " +
+                "g.name AS genre_name, " +
+                "d.director_id, " +
+                "d.name AS director_name " +
+                "FROM films AS f " +
+                "LEFT JOIN rating_mpa AS r ON f.rating_id = r.rating_id " +
+                "LEFT JOIN likes AS l ON f.film_id = l.film_id " +
+                "LEFT JOIN films_genres AS fg ON f.film_id = fg.film_id " +
+                "LEFT JOIN genres AS g ON fg.genre_id = g.genre_id " +
+                "LEFT JOIN films_directors AS fd ON f.film_id = fd.film_id " +
+                "LEFT JOIN directors AS d ON fd.director_id = d.director_id " +
+                "WHERE d.director_id = :director_id";
         List<Film> filmsByDirector = namedJdbc.query(queryFilmsByDirector,
                 Map.of("director_id", directorId),
                 new FilmsExtractor());
@@ -339,25 +339,25 @@ public class JdbcFilmRepository implements FilmRepository {
     @Override
     public List<Film> search(String query, String by) {
         String baseSql = "SELECT f.film_id, " +
-                         "f.name AS film_name, " +
-                         "f.description, " +
-                         "f.release_date, " +
-                         "f.duration, " +
-                         "r.rating_id, " +
-                         "r.name AS rating_name, " +
-                         "l.user_id AS like_user_id, " +
-                         "g.genre_id, " +
-                         "g.name AS genre_name, " +
-                         "d.director_id, " +
-                         "d.name AS director_name " +
-                         "FROM films AS f " +
-                         "LEFT JOIN rating_mpa AS r ON f.rating_id = r.rating_id " +
-                         "LEFT JOIN likes AS l ON f.film_id = l.film_id " +
-                         "LEFT JOIN films_genres AS fg ON f.film_id = fg.film_id " +
-                         "LEFT JOIN genres AS g ON fg.genre_id = g.genre_id " +
-                         "LEFT JOIN films_directors AS fd ON f.film_id = fd.film_id " +
-                         "LEFT JOIN directors AS d ON fd.director_id = d.director_id " +
-                         "WHERE ";
+                "f.name AS film_name, " +
+                "f.description, " +
+                "f.release_date, " +
+                "f.duration, " +
+                "r.rating_id, " +
+                "r.name AS rating_name, " +
+                "l.user_id AS like_user_id, " +
+                "g.genre_id, " +
+                "g.name AS genre_name, " +
+                "d.director_id, " +
+                "d.name AS director_name " +
+                "FROM films AS f " +
+                "LEFT JOIN rating_mpa AS r ON f.rating_id = r.rating_id " +
+                "LEFT JOIN likes AS l ON f.film_id = l.film_id " +
+                "LEFT JOIN films_genres AS fg ON f.film_id = fg.film_id " +
+                "LEFT JOIN genres AS g ON fg.genre_id = g.genre_id " +
+                "LEFT JOIN films_directors AS fd ON f.film_id = fd.film_id " +
+                "LEFT JOIN directors AS d ON fd.director_id = d.director_id " +
+                "WHERE ";
 
 
         boolean searchByTitle = by.contains("title");
@@ -391,27 +391,27 @@ public class JdbcFilmRepository implements FilmRepository {
     public List<Film> getCommonFilms(int userId, int friendId) {
         log.info("FilmRepository: поиск общих фильмов для userId={} и friendId={}", userId, friendId);
         String sql = "SELECT " +
-                     "f.film_id, " +
-                     "f.name AS film_name, " +
-                     "f.description, " +
-                     "f.release_date, " +
-                     "f.duration, " +
-                     "r.rating_id, " +
-                     "r.name AS rating_name, " +
-                     "g.genre_id, " +
-                     "g.name AS genre_name, " +
-                     "(SELECT COUNT(*) FROM likes WHERE film_id = f.film_id) AS likes_count " +
-                     "FROM films AS f " +
-                     "LEFT JOIN rating_mpa AS r ON f.rating_id = r.rating_id " +
-                     "LEFT JOIN films_genres AS fg ON f.film_id = fg.film_id " +
-                     "LEFT JOIN genres AS g ON fg.genre_id = g.genre_id " +
-                     "WHERE f.film_id IN (" +
-                     "    SELECT l1.film_id " +
-                     "    FROM likes l1 " +
-                     "    JOIN likes l2 ON l1.film_id = l2.film_id " +
-                     "    WHERE l1.user_id = :userId AND l2.user_id = :friendId" +
-                     ") " +
-                     "ORDER BY likes_count DESC, f.film_id";
+                "f.film_id, " +
+                "f.name AS film_name, " +
+                "f.description, " +
+                "f.release_date, " +
+                "f.duration, " +
+                "r.rating_id, " +
+                "r.name AS rating_name, " +
+                "g.genre_id, " +
+                "g.name AS genre_name, " +
+                "(SELECT COUNT(*) FROM likes WHERE film_id = f.film_id) AS likes_count " +
+                "FROM films AS f " +
+                "LEFT JOIN rating_mpa AS r ON f.rating_id = r.rating_id " +
+                "LEFT JOIN films_genres AS fg ON f.film_id = fg.film_id " +
+                "LEFT JOIN genres AS g ON fg.genre_id = g.genre_id " +
+                "WHERE f.film_id IN (" +
+                "    SELECT l1.film_id " +
+                "    FROM likes l1 " +
+                "    JOIN likes l2 ON l1.film_id = l2.film_id " +
+                "    WHERE l1.user_id = :userId AND l2.user_id = :friendId" +
+                ") " +
+                "ORDER BY likes_count DESC, f.film_id";
 
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("userId", userId)
@@ -442,28 +442,28 @@ public class JdbcFilmRepository implements FilmRepository {
     public List<Film> getRecommendedFilms(int sourceUserId, int targetUserId) {
         log.info("FilmRepository: start : getRecommendedFilms");
         String sql = "SELECT f.film_id, " +
-                     "f.name AS film_name, " +
-                     "f.description, " +
-                     "f.release_date, " +
-                     "f.duration, " +
-                     "r.rating_id, " +
-                     "r.name AS rating_name, " +
-                     "l.user_id AS like_user_id, " +
-                     "g.genre_id, " +
-                     "g.name AS genre_name, " +
-                     "d.director_id, " +
-                     "d.name AS director_name " +
-                     "FROM films f " +
-                     "JOIN likes l ON f.film_id = l.film_id " +
-                     "LEFT JOIN rating_mpa r ON f.rating_id = r.rating_id " +
-                     "LEFT JOIN films_genres fg ON f.film_id = fg.film_id " +
-                     "LEFT JOIN genres g ON fg.genre_id = g.genre_id " +
-                     "LEFT JOIN films_directors fd ON f.film_id = fd.film_id " +
-                     "LEFT JOIN directors d ON fd.director_id = d.director_id " +
-                     "WHERE l.user_id = :source_user_id " +
-                     "AND f.film_id NOT IN (" +
-                     "    SELECT film_id FROM likes WHERE user_id = :target_user_id" +
-                     ")";
+                "f.name AS film_name, " +
+                "f.description, " +
+                "f.release_date, " +
+                "f.duration, " +
+                "r.rating_id, " +
+                "r.name AS rating_name, " +
+                "l.user_id AS like_user_id, " +
+                "g.genre_id, " +
+                "g.name AS genre_name, " +
+                "d.director_id, " +
+                "d.name AS director_name " +
+                "FROM films f " +
+                "JOIN likes l ON f.film_id = l.film_id " +
+                "LEFT JOIN rating_mpa r ON f.rating_id = r.rating_id " +
+                "LEFT JOIN films_genres fg ON f.film_id = fg.film_id " +
+                "LEFT JOIN genres g ON fg.genre_id = g.genre_id " +
+                "LEFT JOIN films_directors fd ON f.film_id = fd.film_id " +
+                "LEFT JOIN directors d ON fd.director_id = d.director_id " +
+                "WHERE l.user_id = :source_user_id " +
+                "AND f.film_id NOT IN (" +
+                "    SELECT film_id FROM likes WHERE user_id = :target_user_id" +
+                ")";
 
         Map<String, Object> params = new HashMap<>();
         params.put("source_user_id", sourceUserId);
