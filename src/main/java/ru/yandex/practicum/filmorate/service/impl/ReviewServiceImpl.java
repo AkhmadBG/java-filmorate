@@ -46,22 +46,16 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public ReviewDto updateReview(UpdateReviewRequest request) {
         Review review = reviewRepository.getReviewById(request.getReviewId());
-        if (review == null) {
-            throw new NotFoundException("Отзыв не найден");
-        }
 
         ReviewMapper.updateReview(review, request);
         reviewRepository.updateReview(review);
+
         log.info("ReviewServiceImpl: отзыв с id {} обновлен", review.getReviewId());
         return ReviewMapper.mapToReviewDto(review);
     }
 
     @Override
     public void deleteReview(int reviewId) {
-        Review review = reviewRepository.getReviewById(reviewId);
-        if (review == null) {
-            throw new NotFoundException("Отзыв не найден");
-        }
         reviewRepository.deleteReview(reviewId);
         log.info("ReviewServiceImpl: отзыв с id {} удален", reviewId);
     }
@@ -97,31 +91,34 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public void addLikeReview(int reviewId, int userId) {
-        validateReviewAndUser(reviewId, userId);
+    public ReviewDto addLikeReview(int reviewId, int userId) {
         reviewRepository.addLikeReview(reviewId, userId);
         log.info("Пользователь {} лайкнул отзыв {}", userId, reviewId);
+        return null;
     }
 
     @Override
-    public void addDislikeReview(int reviewId, int userId) {
+    public ReviewDto addDislikeReview(int reviewId, int userId) {
         validateReviewAndUser(reviewId, userId);
         reviewRepository.addDislikeReview(reviewId, userId);
         log.info("Пользователь {} дизлайкнул отзыв {}", userId, reviewId);
+        return null;
     }
 
     @Override
-    public void deleteLikeReview(int reviewId, int userId) {
+    public ReviewDto deleteLikeReview(int reviewId, int userId) {
         validateReviewAndUser(reviewId, userId);
         reviewRepository.deleteLikeReview(reviewId, userId);
         log.info("Пользователь {} убрал лайк с отзыва {}", userId, reviewId);
+        return null;
     }
 
     @Override
-    public void deleteDislikeReview(int reviewId, int userId) {
+    public ReviewDto deleteDislikeReview(int reviewId, int userId) {
         validateReviewAndUser(reviewId, userId);
         reviewRepository.deleteDislikeReview(reviewId, userId);
         log.info("Пользователь {} убрал дизлайк с отзыва {}", userId, reviewId);
+        return null;
     }
 
     @Override

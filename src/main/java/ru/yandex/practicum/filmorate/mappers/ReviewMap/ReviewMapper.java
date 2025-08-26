@@ -17,8 +17,10 @@ public final class ReviewMapper {
         review.setIsPositive(rs.getIsPositive());
         review.setUserId(rs.getUserId());
         review.setFilmId(rs.getFilmId());
+        review.setUseful(0);
         return review;
     }
+
 
     public static ReviewDto mapToReviewDto(Review review) {
         ReviewDto reviewDto = new ReviewDto();
@@ -29,18 +31,16 @@ public final class ReviewMapper {
         reviewDto.setIsPositive(review.getIsPositive());
         reviewDto.setUseful(review.getUseful());
         reviewDto.setUserReactions(review.getUserReactions());
-        return reviewDto;
 
+        return reviewDto;
     }
 
     public static void updateReview(Review review, UpdateReviewRequest request) {
         if (request.getContent() != null) {
             review.setContent(request.getContent());
-
         }
         if (request.getIsPositive() != null) {
             review.setIsPositive(request.getIsPositive());
         }
-
     }
 }

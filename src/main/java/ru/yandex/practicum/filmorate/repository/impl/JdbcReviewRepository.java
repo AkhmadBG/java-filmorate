@@ -49,13 +49,12 @@ public class JdbcReviewRepository implements ReviewRepository {
 
     @Override
     public void updateReview(Review review) {
-        String sql = "UPDATE reviews SET content = :content, is_positive = :is_positive, useful = :useful " +
+        String sql = "UPDATE reviews SET content = :content, is_positive = :is_positive " +
                 "WHERE review_id = :review_id";
 
         Map<String, Object> params = new HashMap<>();
         params.put("content", review.getContent());
         params.put("is_positive", review.getIsPositive());
-        params.put("useful", review.getUseful());
         params.put("review_id", review.getReviewId());
 
         int updated = namedJdbc.update(sql, params);
@@ -88,20 +87,26 @@ public class JdbcReviewRepository implements ReviewRepository {
             sql = """
                     SELECT r.review_id, r.content, r.is_positive, r.user_id, r.film_id, r.useful,
                            rr.user_id AS reaction_user_id, rr.is_like
-                    FROM reviews r
+                    FROM (
+                        SELECT * 
+                        FROM reviews 
+                        ORDER BY useful DESC 
+                        LIMIT :count
+                    ) r
                     LEFT JOIN review_reactions rr ON r.review_id = rr.review_id
-                    ORDER BY r.useful DESC
-                    LIMIT :count
                     """;
         } else {
             sql = """
                     SELECT r.review_id, r.content, r.is_positive, r.user_id, r.film_id, r.useful,
                            rr.user_id AS reaction_user_id, rr.is_like
-                    FROM reviews r
+                    FROM (
+                        SELECT * 
+                        FROM reviews 
+                        WHERE film_id = :film_id
+                        ORDER BY useful DESC 
+                        LIMIT :count
+                    ) r
                     LEFT JOIN review_reactions rr ON r.review_id = rr.review_id
-                    WHERE r.film_id = :film_id
-                    ORDER BY r.useful DESC
-                    LIMIT :count
                     """;
             params.addValue("film_id", filmId);
         }

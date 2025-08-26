@@ -17,13 +17,13 @@ public interface ReviewService {
 
     List<ReviewDto> getReviewsByFilmId(int filmId, int count);
 
-    void addLikeReview(int reviewId, int userId);
+    ReviewDto addLikeReview(int reviewId, int userId);
 
-    void addDislikeReview(int reviewId, int userId);
+    ReviewDto addDislikeReview(int reviewId, int userId);
 
-    void deleteLikeReview(int reviewId, int userId);
+    ReviewDto deleteLikeReview(int reviewId, int userId);
 
-    void deleteDislikeReview(int reviewId, int userId);
+    ReviewDto deleteDislikeReview(int reviewId, int userId);
 
     ReviewDto getReviewById(int reviewID);
 
