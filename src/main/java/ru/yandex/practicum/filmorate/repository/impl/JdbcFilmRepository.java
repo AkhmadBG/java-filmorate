@@ -359,7 +359,6 @@ public class JdbcFilmRepository implements FilmRepository {
                 "LEFT JOIN directors AS d ON fd.director_id = d.director_id " +
                 "WHERE ";
 
-
         boolean searchByTitle = by.contains("title");
         boolean searchByDirector = by.contains("director");
 

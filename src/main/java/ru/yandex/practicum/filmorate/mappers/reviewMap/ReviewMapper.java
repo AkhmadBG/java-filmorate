@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.repository.dto.review.NewReviewRequest;
 import ru.yandex.practicum.filmorate.repository.dto.review.ReviewDto;
 import ru.yandex.practicum.filmorate.repository.dto.review.UpdateReviewRequest;
 
-
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ReviewMapper {
 
