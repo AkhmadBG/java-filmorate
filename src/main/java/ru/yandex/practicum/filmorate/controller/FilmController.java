@@ -59,7 +59,7 @@ public class FilmController {
                                            @PathVariable(value = "userId") int userId) {
         filmService.removeLike(filmId, userId);
         log.info("FilmController: пользователю с id {} перестал нравится фильм с id: {}", userId, filmId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/search")

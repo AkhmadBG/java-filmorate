@@ -104,22 +104,21 @@ public class JdbcFilmRepository implements FilmRepository {
     @Override
     public void updateFilm(Film film) {
         String queryUpdateFilm = "UPDATE films SET name = :name, description = :description, " +
-                "release_date = :release_date, duration = :duration WHERE film_id = :film_id";
+                "release_date = :release_date, duration = :duration, rating_id = :rating_id WHERE film_id = :film_id";
 
         Map<String, Object> params = Map.of(
                 "film_id", film.getId(),
                 "name", film.getName(),
                 "description", film.getDescription(),
                 "release_date", film.getReleaseDate(),
-                "duration", film.getDuration()
+                "duration", film.getDuration(),
+                "rating_id", film.getMpa().getId()
         );
 
         int rowsUpdated = namedJdbc.update(queryUpdateFilm, params);
         if (rowsUpdated == 0) {
             throw new NotFoundException("FilmRepository: фильм с id: " + film.getId() + " не найден");
         }
-
-        log.info("FilmRepository: фильм с id: {} обновлен", film.getId());
 
         String queryDeleteFilmsGenres = "DELETE FROM films_genres WHERE film_id = :film_id";
         namedJdbc.update(queryDeleteFilmsGenres, Map.of("film_id", film.getId()));
@@ -132,10 +131,11 @@ public class JdbcFilmRepository implements FilmRepository {
                 ));
             }
         }
+
         String queryDeleteFilmsDirectors = "DELETE FROM films_directors WHERE film_id = :film_id";
         namedJdbc.update(queryDeleteFilmsDirectors, Map.of("film_id", film.getId()));
         String queryInsertFilmsDirectors = "INSERT INTO films_directors (film_id, director_id) VALUES (:film_id, :director_id)";
-        if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
+        if (!film.getDirectors().isEmpty()) {
             for (Director director : film.getDirectors()) {
                 namedJdbc.update(queryInsertFilmsDirectors, Map.of(
                         "film_id", film.getId(),
@@ -143,6 +143,8 @@ public class JdbcFilmRepository implements FilmRepository {
                 ));
             }
         }
+
+        log.info("FilmRepository: фильм с id: {} обновлен", film.getId());
     }
 
     private void addGenresToFilm(int filmId, Set<Genre> genres) {

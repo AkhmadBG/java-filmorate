@@ -24,6 +24,9 @@ public class DirectorServiceImpl implements DirectorService {
 
     @Override
     public DirectorDto addDirector(NewDirectorRequest newDirectorRequest) {
+        if (newDirectorRequest.getName().isBlank()) {
+            throw new RuntimeException("DirectorServiceImpl: должно быть указано имя режиссера");
+        }
         Director director = directorRepository.addDirector(DirectorMapper.mapToDirector(newDirectorRequest));
         log.info("DirectorServiceImpl: добавлен режиссер с id {} ", director.getId());
         return DirectorMapper.mapToDirectorDto(director);
