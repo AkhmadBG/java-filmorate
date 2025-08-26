@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.util;
 import lombok.experimental.UtilityClass;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.repository.dto.film.NewFilmRequest;
+import ru.yandex.practicum.filmorate.repository.dto.film.UpdateFilmRequest;
 
 import java.time.LocalDate;
 
@@ -30,6 +31,28 @@ public final class FilmValidator {
         }
 
         if (newFilmRequest.getDuration() <= 0) {
+            throw new ValidationException("FilmValidator: продолжительность фильма должна быть положительной");
+        }
+    }
+
+    public static void validator(UpdateFilmRequest updateFilmRequest) {
+        if (updateFilmRequest == null) {
+            throw new ValidationException("FilmValidator: film не может быть null");
+        }
+
+        if ((updateFilmRequest.getName() == null || updateFilmRequest.getName().isBlank())) {
+            throw new ValidationException("FilmValidator: название фильма не может быть пустым");
+        }
+
+        if (updateFilmRequest.getDescription().length() > MAX_DESCRIPTION_LENGTH) {
+            throw new ValidationException("FilmValidator: максимальная длина описания — 200 символов");
+        }
+
+        if (updateFilmRequest.getReleaseDate().isBefore(STARTING_DATE) || updateFilmRequest.getReleaseDate().isAfter(LocalDate.now())) {
+            throw new ValidationException("FilmValidator: дата релиза — не раньше 28 декабря 1895 года, и не может быть позже текущей даты");
+        }
+
+        if (updateFilmRequest.getDuration() <= 0) {
             throw new ValidationException("FilmValidator: продолжительность фильма должна быть положительной");
         }
     }
