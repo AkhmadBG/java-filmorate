@@ -29,7 +29,7 @@ public class JdbcReviewRepository implements ReviewRepository {
     @Override
     public Review createReview(Review review) {
         String sql = "INSERT INTO reviews (content, is_positive, user_id, film_id, useful)" +
-                     "VALUES (:content,:is_positive, :user_id, :film_id, :useful)";
+                "VALUES (:content,:is_positive, :user_id, :film_id, :useful)";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("content", review.getContent());
         params.addValue("is_positive", review.getIsPositive());
@@ -45,12 +45,10 @@ public class JdbcReviewRepository implements ReviewRepository {
         review.setReviewId(Objects.requireNonNull(keyHolder.getKey()).intValue());
         log.info("Создан отзыв с ID: {}", review.getReviewId());
 
-
         String queryAddFeed = "INSERT INTO feed_event (user_id, event_type, operation, entity_id, timestamp) " +
-                              "VALUES (:user_id,'REVIEW','ADD', :entity_id, :timestamp)";
+                "VALUES (:user_id,'REVIEW','ADD', :entity_id, :timestamp)";
         namedJdbc.update(queryAddFeed, Map.of("user_id", review.getUserId(), "entity_id", review.getReviewId(), "timestamp", Instant.now().toEpochMilli()));
         log.info("ReviewRepository: в ленту событий добавили отзыв");
-
 
         return review;
 
@@ -58,31 +56,27 @@ public class JdbcReviewRepository implements ReviewRepository {
 
     @Override
     public void updateReview(Review review) {
-
-        String sql = "UPDATE reviews SET content = :content, is_positive = :is_positive " +
-
-                     "WHERE review_id = :review_id";
+        String sql = "UPDATE reviews SET content = :content, is_positive = :is_positive, useful = :useful " +
+                "WHERE review_id = :review_id";
 
         Map<String, Object> params = new HashMap<>();
         params.put("content", review.getContent());
         params.put("is_positive", review.getIsPositive());
+        params.put("useful", review.getUseful());
         params.put("review_id", review.getReviewId());
 
         int updated = namedJdbc.update(sql, params);
         log.info("Обновлен {} отзыв с ID: {}", updated, review.getReviewId());
 
         String queryAddFeed = "INSERT INTO feed_event (user_id, event_type, operation, entity_id, timestamp) " +
-                              "VALUES (:user_id,'REVIEW','UPDATE', :entity_id, :timestamp)";
+                "VALUES (:user_id,'REVIEW','UPDATE', :entity_id, :timestamp)";
         namedJdbc.update(queryAddFeed, Map.of("user_id", review.getUserId(), "entity_id", review.getReviewId(), "timestamp", Instant.now().toEpochMilli()));
         log.info("ReviewRepository: в ленту событий обновили отзыв");
-
     }
 
     @Override
     public void deleteReview(int reviewId) {
-
         Review review = getReviewById(reviewId);
-
         String sql = "DELETE FROM reviews WHERE review_id = :review_id";
 
         MapSqlParameterSource params = new MapSqlParameterSource();
@@ -92,10 +86,9 @@ public class JdbcReviewRepository implements ReviewRepository {
         log.info("Удален {} отзыв с ID: {}", deleted, reviewId);
 
         String queryAddFeed = "INSERT INTO feed_event (user_id, event_type, operation, entity_id, timestamp) " +
-                              "VALUES (:user_id,'REVIEW','REMOVE', :entity_id, :timestamp)";
+                "VALUES (:user_id,'REVIEW','REMOVE', :entity_id, :timestamp)";
         namedJdbc.update(queryAddFeed, Map.of("user_id", review.getUserId(), "entity_id", review.getReviewId(), "timestamp", Instant.now().toEpochMilli()));
-        log.info("ReviewRepository: в ленту событий добавлен удалённый отзыв id={}", reviewId);
-
+        log.info("ReviewRepository: в ленту событий обновили отзыв");
     }
 
     @Override
@@ -112,33 +105,26 @@ public class JdbcReviewRepository implements ReviewRepository {
             sql = """
                     SELECT r.review_id, r.content, r.is_positive, r.user_id, r.film_id, r.useful,
                            rr.user_id AS reaction_user_id, rr.is_like
-                    FROM (
-                        SELECT *
-                        FROM reviews
-                        ORDER BY useful DESC
-                        LIMIT :count
-                    ) r
+                    FROM reviews r
                     LEFT JOIN review_reactions rr ON r.review_id = rr.review_id
+                    ORDER BY r.useful DESC
+                    LIMIT :count
                     """;
         } else {
             sql = """
                     SELECT r.review_id, r.content, r.is_positive, r.user_id, r.film_id, r.useful,
                            rr.user_id AS reaction_user_id, rr.is_like
-                    FROM (
-                        SELECT *
-                        FROM reviews
-                        WHERE film_id = :film_id
-                        ORDER BY useful DESC
-                        LIMIT :count
-                    ) r
+                    FROM reviews r
                     LEFT JOIN review_reactions rr ON r.review_id = rr.review_id
+                    WHERE r.film_id = :film_id
+                    ORDER BY r.useful DESC
+                    LIMIT :count
                     """;
             params.addValue("film_id", filmId);
         }
 
         return namedJdbc.query(sql, params, new ReviewsExtractor());
     }
-
 
     @Override
     public Review getReviewById(int reviewId) {
@@ -168,7 +154,6 @@ public class JdbcReviewRepository implements ReviewRepository {
         return getReviewsByFilmId(0, count);
     }
 
-
     @Override
     public void addLikeReview(int reviewId, int userId) {
         addReaction(reviewId, userId, true);
@@ -196,23 +181,16 @@ public class JdbcReviewRepository implements ReviewRepository {
                 .addValue("is_like", isLike);
 
         try {
-
-            // 1. Проверяем, есть ли уже реакция
             String checkSql = "SELECT COUNT(*) FROM review_reactions WHERE review_id = :review_id AND user_id = :user_id";
             Integer count = namedJdbc.queryForObject(checkSql, params, Integer.class);
 
             if (count != null && count > 0) {
-
-                // 2. Обновляем реакцию
                 String updateSql = "UPDATE review_reactions SET is_like = :is_like WHERE review_id = :review_id AND user_id = :user_id";
                 namedJdbc.update(updateSql, params);
             } else {
-                // 3. Вставляем новую реакцию
                 String insertSql = "INSERT INTO review_reactions (review_id, user_id, is_like) VALUES (:review_id, :user_id, :is_like)";
                 namedJdbc.update(insertSql, params);
             }
-
-            // 4. Пересчитываем полезность
 
             updateUseful(reviewId);
 
@@ -233,9 +211,6 @@ public class JdbcReviewRepository implements ReviewRepository {
             namedJdbc.update(sql, params);
             updateUseful(reviewId);
 
-
-            // Возвращаем актуальный отзыв после пересчёта
-
             getReviewById(reviewId);
 
         } catch (Exception e) {
@@ -244,7 +219,6 @@ public class JdbcReviewRepository implements ReviewRepository {
             throw new RuntimeException("Ошибка при удалении реакции на отзыв", e);
         }
     }
-
 
     private void updateUseful(int reviewId) {
         String sql = """
@@ -260,7 +234,4 @@ public class JdbcReviewRepository implements ReviewRepository {
         namedJdbc.update(sql, new MapSqlParameterSource().addValue("review_id", reviewId));
     }
 
-
 }
-
-

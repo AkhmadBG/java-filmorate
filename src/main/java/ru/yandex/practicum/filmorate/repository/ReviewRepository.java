@@ -26,7 +26,4 @@ public interface ReviewRepository {
 
     List<Review> getAllReviews(int count);
 
-
 }
-
-
