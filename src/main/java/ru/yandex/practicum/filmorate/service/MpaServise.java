@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
-import ru.yandex.practicum.filmorate.repository.dto.MpaDto;
+import ru.yandex.practicum.filmorate.repository.dto.mpa.MpaDto;
 
 import java.util.Collection;
 

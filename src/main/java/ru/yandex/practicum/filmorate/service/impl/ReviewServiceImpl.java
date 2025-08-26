@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+
 import ru.yandex.practicum.filmorate.mappers.ReviewMap.ReviewMapper;
+
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.repository.FilmRepository;
 import ru.yandex.practicum.filmorate.repository.ReviewRepository;
@@ -47,8 +49,10 @@ public class ReviewServiceImpl implements ReviewService {
     public ReviewDto updateReview(UpdateReviewRequest request) {
         Review review = reviewRepository.getReviewById(request.getReviewId());
 
+
         ReviewMapper.updateReview(review, request);
         reviewRepository.updateReview(review);
+
 
         log.info("ReviewServiceImpl: отзыв с id {} обновлен", review.getReviewId());
         return ReviewMapper.mapToReviewDto(review);
@@ -56,6 +60,8 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public void deleteReview(int reviewId) {
+
+
         reviewRepository.deleteReview(reviewId);
         log.info("ReviewServiceImpl: отзыв с id {} удален", reviewId);
     }
@@ -91,6 +97,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+
     public ReviewDto addLikeReview(int reviewId, int userId) {
         reviewRepository.addLikeReview(reviewId, userId);
         log.info("Пользователь {} лайкнул отзыв {}", userId, reviewId);
@@ -119,6 +126,7 @@ public class ReviewServiceImpl implements ReviewService {
         reviewRepository.deleteDislikeReview(reviewId, userId);
         log.info("Пользователь {} убрал дизлайк с отзыва {}", userId, reviewId);
         return null;
+
     }
 
     @Override
@@ -127,4 +135,6 @@ public class ReviewServiceImpl implements ReviewService {
         if (review == null) throw new NotFoundException("Отзыв не найден");
         return ReviewMapper.mapToReviewDto(review);
     }
+
 }
+

@@ -1,9 +1,9 @@
 package ru.yandex.practicum.filmorate.service;
 
 import ru.yandex.practicum.filmorate.model.FilmSortBy;
-import ru.yandex.practicum.filmorate.repository.dto.FilmDto;
-import ru.yandex.practicum.filmorate.repository.dto.NewFilmRequest;
-import ru.yandex.practicum.filmorate.repository.dto.UpdateFilmRequest;
+import ru.yandex.practicum.filmorate.repository.dto.film.FilmDto;
+import ru.yandex.practicum.filmorate.repository.dto.film.NewFilmRequest;
+import ru.yandex.practicum.filmorate.repository.dto.film.UpdateFilmRequest;
 
 import java.util.List;
 import java.util.Set;
@@ -22,9 +22,13 @@ public interface FilmService {
 
     void removeLike(int filmId, int userId);
 
-    Set<FilmDto> getTopFilms(int count);
+    Set<FilmDto> getTopFilms(int count, Integer genreId, Integer year);
+
+    void deleteFilm(int filmId);
 
     List<FilmDto> getCommonFilms(int userId, int friendId);
+
+    List<FilmDto> searchFilms(String query, String by);
 
     List<FilmDto> getFilmsByDirector(int directorId, FilmSortBy sortBy);
 

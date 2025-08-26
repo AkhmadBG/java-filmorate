@@ -23,6 +23,8 @@ public class ReviewValidator {
         }
 
 
+
+
         if (request.getUserId() == null) {
             throw new ValidationException("Не указан пользователь или пользователь не найден");
         }
@@ -38,5 +40,7 @@ public class ReviewValidator {
         }
 
 
+
     }
+
 }

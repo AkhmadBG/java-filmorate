@@ -5,12 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.mappers.UserMapper;
+import ru.yandex.practicum.filmorate.mappers.userMap.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.UserEvents;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
-import ru.yandex.practicum.filmorate.repository.dto.NewUserRequest;
-import ru.yandex.practicum.filmorate.repository.dto.UpdateUserRequest;
-import ru.yandex.practicum.filmorate.repository.dto.UserDto;
+
+import ru.yandex.practicum.filmorate.repository.dto.user.NewUserRequest;
+import ru.yandex.practicum.filmorate.repository.dto.user.UpdateUserRequest;
+
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.util.UserValidator;
 
@@ -104,6 +106,20 @@ public class UserServiceImpl implements UserService {
                 .map(userRepository::getUserById)
                 .map(UserMapper::mapToUserDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteUser(int userId) {
+        if (!userRepository.userExists(userId)) {
+            throw new NotFoundException("UserServiceImpl: пользователь с id: " + userId + " не найден");
+        }
+        userRepository.deleteUser(userId);
+        log.info("UserServiceImpl: пользователь с id: {} удалён", userId);
+    }
+
+    @Override
+    public List<UserEvents> getUserFeeds(int userId) {
+        return userRepository.userEvent(userId);
     }
 
 }

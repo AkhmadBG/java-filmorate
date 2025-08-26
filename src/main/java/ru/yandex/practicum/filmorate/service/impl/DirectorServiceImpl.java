@@ -4,12 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.mappers.DirectorMapper;
+import ru.yandex.practicum.filmorate.mappers.directorMap.DirectorMapper;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.repository.DirectorRepository;
-import ru.yandex.practicum.filmorate.repository.dto.DirectorDto;
-import ru.yandex.practicum.filmorate.repository.dto.NewDirectorRequest;
-import ru.yandex.practicum.filmorate.repository.dto.UpdateDirectorRequest;
+import ru.yandex.practicum.filmorate.repository.dto.director.DirectorDto;
+import ru.yandex.practicum.filmorate.repository.dto.director.NewDirectorRequest;
+import ru.yandex.practicum.filmorate.repository.dto.director.UpdateDirectorRequest;
 import ru.yandex.practicum.filmorate.service.DirectorService;
 
 import java.util.List;
@@ -62,4 +62,5 @@ public class DirectorServiceImpl implements DirectorService {
         directorRepository.deleteDirector(directorId);
         log.info("DirectorServiceImpl: режиссер с id {} удален", directorId);
     }
+
 }

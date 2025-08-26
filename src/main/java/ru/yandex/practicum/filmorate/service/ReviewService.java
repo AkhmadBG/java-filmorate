@@ -17,6 +17,7 @@ public interface ReviewService {
 
     List<ReviewDto> getReviewsByFilmId(int filmId, int count);
 
+
     ReviewDto addLikeReview(int reviewId, int userId);
 
     ReviewDto addDislikeReview(int reviewId, int userId);
@@ -26,6 +27,7 @@ public interface ReviewService {
     ReviewDto deleteDislikeReview(int reviewId, int userId);
 
     ReviewDto getReviewById(int reviewID);
+
 
 
 }

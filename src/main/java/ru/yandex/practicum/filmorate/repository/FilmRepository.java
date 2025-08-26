@@ -21,10 +21,16 @@ public interface FilmRepository {
 
     void removeLike(int filmId, int userId);
 
-    List<Film> getTopPopular(int count);
+    List<Film> getTopPopular(int count, Integer genreId, Integer year);
+
+    void deleteFilm(int filmId);
 
     List<Film> getCommonFilms(int userId, int friendId);
 
+    List<Film> search(String query, String by);
+
     List<Film> getFilmsByDirector(int directorId, FilmSortBy sortBy);
+
+    List<Film> getRecommendedFilms(int sourceUserId, int targetUserId);
 
 }

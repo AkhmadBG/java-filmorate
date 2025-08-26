@@ -8,11 +8,16 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.mappers.UserExtractor;
-import ru.yandex.practicum.filmorate.mappers.UsersExtractor;
+import ru.yandex.practicum.filmorate.mappers.userMap.UserEventsExtractor;
+import ru.yandex.practicum.filmorate.mappers.userMap.UserExtractor;
+import ru.yandex.practicum.filmorate.mappers.userMap.UsersExtractor;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.UserEvents;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
 
+import java.sql.ResultSet;
+import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -67,6 +72,10 @@ public class JdbcUserRepository implements UserRepository {
             throw new NotFoundException("UserRepository: попытка добавления в друзья пользователю с id: " + userId +
                     " пользователя с id: " + friendId + " не удалась");
         }
+        String queryAddFeed = "INSERT INTO feed_event (user_id,event_type,operation,entity_id,timestamp)" +
+                " VALUES (:user_id,'FRIEND','ADD',:entity_id,:timestamp)";
+        namedJdbc.update(queryAddFeed, Map.of("user_id", userId, "entity_id", friendId, "timestamp", Instant.now().toEpochMilli()));
+        log.info("UserRepository: пользователю {} добавилось событие с добавление пользователя!", userId);
     }
 
     @Override
@@ -81,6 +90,10 @@ public class JdbcUserRepository implements UserRepository {
         Map<String, Object> params = Map.of("user_id", userId, "friend_id", friendId);
         namedJdbc.update(queryDeleteFriend, params);
         log.info("UserRepository: пользователи с id: {} и {} теперь не друзья", userId, friendId);
+        String queryAddFeed = "INSERT INTO feed_event (user_id,event_type,operation,entity_id,timestamp)" +
+                " VALUES (:user_id,'FRIEND','REMOVE',:entity_id,:timestamp)";
+        namedJdbc.update(queryAddFeed, Map.of("user_id", userId, "entity_id", friendId, "timestamp", Instant.now().toEpochMilli()));
+        log.info("UserRepository: пользователю {} добавилось событие с удалением пользователя!", userId);
     }
 
     @Override
@@ -138,6 +151,51 @@ public class JdbcUserRepository implements UserRepository {
         } else {
             throw new RuntimeException("UserRepository: не удалось сохранить пользователя: id не сгенерирован");
         }
+    }
+
+    @Override
+    public void deleteUser(int userId) {
+        if (!userExists(userId)) {
+            throw new NotFoundException("UserRepository: пользователь с id: " + userId + " не найден");
+        }
+        String query = "DELETE FROM users WHERE user_id = :user_id";
+        Map<String, Object> params = Map.of("user_id", userId);
+        namedJdbc.update(query, params);
+        log.info("UserRepository: пользователь с id: {} удалён", userId);
+    }
+
+    @Override
+    public Map<Integer, Integer> findUsersWithCommonLikes(int userId) {
+        String sql = "SELECT other_likes.user_id, COUNT(DISTINCT other_likes.film_id) as common_likes " +
+                "FROM likes current_user_likes " +
+                "JOIN likes other_likes ON current_user_likes.film_id = other_likes.film_id " +
+                "WHERE current_user_likes.user_id = :user_id AND other_likes.user_id != :user_id " +
+                "GROUP BY other_likes.user_id " +
+                "ORDER BY common_likes DESC";
+
+        Map<String, Object> params = Map.of("user_id", userId);
+
+        return namedJdbc.query(sql, params, (ResultSet rs) -> {
+            Map<Integer, Integer> result = new HashMap<>();
+            while (rs.next()) {
+                result.put(rs.getInt("user_id"), rs.getInt("common_likes"));
+            }
+            return result;
+        });
+    }
+
+    @Override
+    public List<UserEvents> userEvent(int userId) {
+        String queryFeed = "SELECT " +
+                "timestamp, " +
+                "user_id, " +
+                "event_type, " +
+                "operation, " +
+                "event_id, " +
+                "entity_id " +
+                "FROM feed_event " +
+                "WHERE feed_event.user_id = :userId;";
+        return namedJdbc.query(queryFeed, Map.of("userId", userId), new UserEventsExtractor());
     }
 
 }

@@ -1,8 +1,10 @@
 package ru.yandex.practicum.filmorate.repository;
 
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.UserEvents;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UserRepository {
 
@@ -19,5 +21,11 @@ public interface UserRepository {
     void deleteFriendShip(int userId, int friendId);
 
     void updateUser(User user);
+
+    void deleteUser(int userId);
+
+    Map<Integer, Integer> findUsersWithCommonLikes(int userId);
+
+    List<UserEvents> userEvent(int userId);
 
 }
