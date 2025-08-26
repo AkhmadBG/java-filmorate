@@ -63,11 +63,9 @@ public class FilmController {
     }
 
     @GetMapping("/search")
-    public List<FilmDto> searchFilms(
-            @RequestParam String query,
-            @RequestParam String by
-    ) {
-        return filmService.searchFilms(query, by);
+    public ResponseEntity<List<FilmDto>> searchFilms(@RequestParam String query,
+                                     @RequestParam String by) {
+        return ResponseEntity.ok(filmService.searchFilms(query, by));
     }
 
     @DeleteMapping("/{filmId}")
@@ -79,10 +77,10 @@ public class FilmController {
     }
 
     @GetMapping("/common")
-    public List<FilmDto> getCommonFilms(@RequestParam int userId,
+    public ResponseEntity<List<FilmDto>> getCommonFilms(@RequestParam int userId,
                                         @RequestParam int friendId) {
         log.debug("FilmController: API GET /films/common userId={}, friendId={}", userId, friendId);
-        return filmService.getCommonFilms(userId, friendId);
+        return ResponseEntity.ok(filmService.getCommonFilms(userId, friendId));
     }
 
     @GetMapping("/director/{directorId}")

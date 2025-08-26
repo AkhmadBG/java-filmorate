@@ -26,6 +26,10 @@ public class UserValidator {
             throw new ValidationException("UserValidator: дата рождения не может быть в будущем");
         }
 
+        if (newUserRequest.getName() == null || newUserRequest.getName().isBlank()) {
+            newUserRequest.setName(newUserRequest.getLogin());
+        }
+
     }
 
 }
