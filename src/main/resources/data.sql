@@ -1,7 +1,7 @@
 merge into rating_mpa (rating_id, name)
-    values (1, 'G');
+    values (2, 'G');
 merge into rating_mpa (rating_id, name)
-    values (2, 'PG');
+    values (1, 'PG');
 merge into rating_mpa (rating_id, name)
     values (3, 'PG-13');
 merge into rating_mpa (rating_id, name)
@@ -10,7 +10,7 @@ merge into rating_mpa (rating_id, name)
     values (5, 'NC-17');
 
 merge into genres (genre_id, name)
-    values (1, 'Комедия');
+    values (5, 'Комедия');
 merge into genres (genre_id, name)
     values (2, 'Драма');
 merge into genres (genre_id, name)
@@ -18,6 +18,6 @@ merge into genres (genre_id, name)
 merge into genres (genre_id, name)
     values (4, 'Триллер');
 merge into genres (genre_id, name)
-    values (5, 'Документальный');
+    values (1, 'Документальный');
 merge into genres (genre_id, name)
     values (6, 'Боевик');
