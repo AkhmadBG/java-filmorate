@@ -88,9 +88,9 @@ public class JdbcReviewRepository implements ReviewRepository {
                     SELECT r.review_id, r.content, r.is_positive, r.user_id, r.film_id, r.useful,
                            rr.user_id AS reaction_user_id, rr.is_like
                     FROM (
-                        SELECT * 
-                        FROM reviews 
-                        ORDER BY useful DESC 
+                        SELECT *
+                        FROM reviews
+                        ORDER BY useful DESC
                         LIMIT :count
                     ) r
                     LEFT JOIN review_reactions rr ON r.review_id = rr.review_id
@@ -100,10 +100,10 @@ public class JdbcReviewRepository implements ReviewRepository {
                     SELECT r.review_id, r.content, r.is_positive, r.user_id, r.film_id, r.useful,
                            rr.user_id AS reaction_user_id, rr.is_like
                     FROM (
-                        SELECT * 
-                        FROM reviews 
+                        SELECT *
+                        FROM reviews
                         WHERE film_id = :film_id
-                        ORDER BY useful DESC 
+                        ORDER BY useful DESC
                         LIMIT :count
                     ) r
                     LEFT JOIN review_reactions rr ON r.review_id = rr.review_id
