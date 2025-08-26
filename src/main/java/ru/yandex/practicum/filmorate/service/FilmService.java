@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import ru.yandex.practicum.filmorate.model.FilmSortBy;
 import ru.yandex.practicum.filmorate.repository.dto.FilmDto;
 import ru.yandex.practicum.filmorate.repository.dto.NewFilmRequest;
 import ru.yandex.practicum.filmorate.repository.dto.UpdateFilmRequest;
@@ -22,5 +23,9 @@ public interface FilmService {
     void removeLike(int filmId, int userId);
 
     Set<FilmDto> getTopFilms(int count);
+
+    List<FilmDto> getCommonFilms(int userId, int friendId);
+
+    List<FilmDto> getFilmsByDirector(int directorId, FilmSortBy sortBy);
 
 }

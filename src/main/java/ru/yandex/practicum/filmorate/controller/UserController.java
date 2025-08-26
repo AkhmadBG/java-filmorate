@@ -35,8 +35,9 @@ public class UserController {
 
     @GetMapping()
     public ResponseEntity<List<UserDto>> allUsers() {
-        log.info("UserController: количество всех пользователей: {}", userService.allUsers().size());
-        return ResponseEntity.ok(userService.allUsers());
+        List<UserDto> allUsers = userService.allUsers();
+        log.info("UserController: количество всех пользователей: {}", allUsers.size());
+        return ResponseEntity.ok(allUsers);
     }
 
     @GetMapping("/{userId}")
