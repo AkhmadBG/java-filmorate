@@ -36,6 +36,7 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public FilmDto updateFilm(UpdateFilmRequest updateFilmRequest) {
+        FilmValidator.validator(updateFilmRequest);
         Film film = filmRepository.getFilmById(updateFilmRequest.getId());
         FilmMapper.updateFilm(film, updateFilmRequest);
         filmRepository.updateFilm(film);
