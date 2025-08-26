@@ -4,19 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import ru.yandex.practicum.filmorate.model.FilmSortBy;
 import ru.yandex.practicum.filmorate.repository.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.repository.dto.film.NewFilmRequest;
 import ru.yandex.practicum.filmorate.repository.dto.film.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.service.FilmService;
-
-
-import ru.yandex.practicum.filmorate.repository.dto.FilmDto;
-import ru.yandex.practicum.filmorate.repository.dto.NewFilmRequest;
-import ru.yandex.practicum.filmorate.repository.dto.UpdateFilmRequest;
-import ru.yandex.practicum.filmorate.service.FilmService;
-
 
 import java.util.List;
 import java.util.Set;
@@ -72,7 +64,7 @@ public class FilmController {
 
     @GetMapping("/search")
     public ResponseEntity<List<FilmDto>> searchFilms(@RequestParam String query,
-                                     @RequestParam String by) {
+                                                     @RequestParam String by) {
         return ResponseEntity.ok(filmService.searchFilms(query, by));
     }
 
@@ -86,7 +78,7 @@ public class FilmController {
 
     @GetMapping("/common")
     public ResponseEntity<List<FilmDto>> getCommonFilms(@RequestParam int userId,
-                                        @RequestParam int friendId) {
+                                                        @RequestParam int friendId) {
         log.debug("FilmController: API GET /films/common userId={}, friendId={}", userId, friendId);
         return ResponseEntity.ok(filmService.getCommonFilms(userId, friendId));
     }

@@ -1,8 +1,6 @@
 package ru.yandex.practicum.filmorate.repository.dto.review;
 
 
-
-
 import lombok.Data;
 
 @Data

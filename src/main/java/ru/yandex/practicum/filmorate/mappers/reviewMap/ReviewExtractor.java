@@ -12,35 +12,28 @@ public class ReviewExtractor implements ResultSetExtractor<Review> {
 
     @Override
     public Review extractData(ResultSet rs) throws SQLException, DataAccessException {
-        if (!rs.next()) {
-            return null;
-        }
-
-        Review review = Review.builder()
-                .reviewId(rs.getInt("review_id"))
-                .content(rs.getString("content"))
-                .isPositive(rs.getBoolean("is_positive"))
-                .userId(rs.getInt("user_id"))
-                .filmId(rs.getInt("film_id"))
-                .useful(rs.getInt("useful"))
-                .userReactions(new HashMap<>())
-                .build();
-
-        long reactionUserId = rs.getLong("reaction_user_id");
-        if (!rs.wasNull()) {
-            Boolean isLike = rs.getBoolean("is_like");
-            review.getUserReactions().put(reactionUserId, isLike);
-        }
+        Review review = null;
 
         while (rs.next()) {
-            reactionUserId = rs.getLong("reaction_user_id");
+            if (review == null) {
+                review = Review.builder()
+                        .reviewId(rs.getInt("review_id"))
+                        .content(rs.getString("content"))
+                        .isPositive(rs.getBoolean("is_positive"))
+                        .userId(rs.getInt("user_id"))
+                        .filmId(rs.getInt("film_id"))
+                        .useful(rs.getInt("useful"))
+                        .userReactions(new HashMap<>())
+                        .build();
+            }
+
+            long reactionUserId = rs.getLong("reaction_user_id");
             if (!rs.wasNull()) {
-                Boolean isLike = rs.getBoolean("is_like");
+                Boolean isLike = rs.getObject("is_like", Boolean.class);
                 review.getUserReactions().put(reactionUserId, isLike);
             }
         }
 
         return review;
     }
-
 }

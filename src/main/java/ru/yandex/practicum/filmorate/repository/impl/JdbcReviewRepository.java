@@ -8,13 +8,12 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-
-import ru.yandex.practicum.filmorate.mappers.ReviewMap.ReviewExtractor;
-import ru.yandex.practicum.filmorate.mappers.ReviewMap.ReviewsExtractor;
+import ru.yandex.practicum.filmorate.mappers.reviewMap.ReviewExtractor;
+import ru.yandex.practicum.filmorate.mappers.reviewMap.ReviewsExtractor;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.repository.ReviewRepository;
 
-
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +29,7 @@ public class JdbcReviewRepository implements ReviewRepository {
     @Override
     public Review createReview(Review review) {
         String sql = "INSERT INTO reviews (content, is_positive, user_id, film_id, useful)" +
-                "VALUES (:content,:is_positive, :user_id, :film_id, :useful)";
+                     "VALUES (:content,:is_positive, :user_id, :film_id, :useful)";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("content", review.getContent());
         params.addValue("is_positive", review.getIsPositive());
@@ -48,7 +47,7 @@ public class JdbcReviewRepository implements ReviewRepository {
 
 
         String queryAddFeed = "INSERT INTO feed_event (user_id, event_type, operation, entity_id, timestamp) " +
-                "VALUES (:user_id,'REVIEW','ADD', :entity_id, :timestamp)";
+                              "VALUES (:user_id,'REVIEW','ADD', :entity_id, :timestamp)";
         namedJdbc.update(queryAddFeed, Map.of("user_id", review.getUserId(), "entity_id", review.getReviewId(), "timestamp", Instant.now().toEpochMilli()));
         log.info("ReviewRepository: в ленту событий добавили отзыв");
 
@@ -62,7 +61,7 @@ public class JdbcReviewRepository implements ReviewRepository {
 
         String sql = "UPDATE reviews SET content = :content, is_positive = :is_positive " +
 
-                "WHERE review_id = :review_id";
+                     "WHERE review_id = :review_id";
 
         Map<String, Object> params = new HashMap<>();
         params.put("content", review.getContent());
@@ -73,7 +72,7 @@ public class JdbcReviewRepository implements ReviewRepository {
         log.info("Обновлен {} отзыв с ID: {}", updated, review.getReviewId());
 
         String queryAddFeed = "INSERT INTO feed_event (user_id, event_type, operation, entity_id, timestamp) " +
-                "VALUES (:user_id,'REVIEW','UPDATE', :entity_id, :timestamp)";
+                              "VALUES (:user_id,'REVIEW','UPDATE', :entity_id, :timestamp)";
         namedJdbc.update(queryAddFeed, Map.of("user_id", review.getUserId(), "entity_id", review.getReviewId(), "timestamp", Instant.now().toEpochMilli()));
         log.info("ReviewRepository: в ленту событий обновили отзыв");
 
@@ -81,6 +80,8 @@ public class JdbcReviewRepository implements ReviewRepository {
 
     @Override
     public void deleteReview(int reviewId) {
+
+        Review review = getReviewById(reviewId);
 
         String sql = "DELETE FROM reviews WHERE review_id = :review_id";
 
@@ -91,9 +92,9 @@ public class JdbcReviewRepository implements ReviewRepository {
         log.info("Удален {} отзыв с ID: {}", deleted, reviewId);
 
         String queryAddFeed = "INSERT INTO feed_event (user_id, event_type, operation, entity_id, timestamp) " +
-                "VALUES (:user_id,'REVIEW','REMOVE', :entity_id, :timestamp)";
+                              "VALUES (:user_id,'REVIEW','REMOVE', :entity_id, :timestamp)";
         namedJdbc.update(queryAddFeed, Map.of("user_id", review.getUserId(), "entity_id", review.getReviewId(), "timestamp", Instant.now().toEpochMilli()));
-        log.info("ReviewRepository: в ленту событий обновили отзыв");
+        log.info("ReviewRepository: в ленту событий добавлен удалённый отзыв id={}", reviewId);
 
     }
 
@@ -111,7 +112,6 @@ public class JdbcReviewRepository implements ReviewRepository {
             sql = """
                     SELECT r.review_id, r.content, r.is_positive, r.user_id, r.film_id, r.useful,
                            rr.user_id AS reaction_user_id, rr.is_like
-
                     FROM (
                         SELECT *
                         FROM reviews
@@ -119,12 +119,11 @@ public class JdbcReviewRepository implements ReviewRepository {
                         LIMIT :count
                     ) r
                     LEFT JOIN review_reactions rr ON r.review_id = rr.review_id
-  """;
+                    """;
         } else {
             sql = """
                     SELECT r.review_id, r.content, r.is_positive, r.user_id, r.film_id, r.useful,
                            rr.user_id AS reaction_user_id, rr.is_like
-
                     FROM (
                         SELECT *
                         FROM reviews

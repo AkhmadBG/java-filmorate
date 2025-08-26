@@ -6,9 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.mappers.genreMap.GenreMapper;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.repository.GenreRepository;
-
 import ru.yandex.practicum.filmorate.repository.dto.genre.GenreDto;
-
 import ru.yandex.practicum.filmorate.service.GenreServise;
 
 import java.util.Collection;

@@ -9,8 +9,8 @@ import ru.yandex.practicum.filmorate.repository.dto.review.ReviewDto;
 import ru.yandex.practicum.filmorate.repository.dto.review.UpdateReviewRequest;
 import ru.yandex.practicum.filmorate.service.ReviewService;
 
-
 import java.net.URI;
+import java.util.List;
 
 
 @Slf4j
@@ -63,27 +63,24 @@ public class ReviewController {
         log.info("Получено {} отзывов (filmId={}, count={})", reviews.size(), filmId, count);
         return ResponseEntity.ok(reviews);
 
+    }
 
     @PutMapping("/{id}/like/{userId}")
     public ResponseEntity<ReviewDto> addLike(@PathVariable int id, @PathVariable int userId) {
-
         ReviewDto updated = reviewService.addLikeReview(id, userId);
         return ResponseEntity.ok(updated);
-
     }
 
     @PutMapping("/{id}/dislike/{userId}")
     public ResponseEntity<ReviewDto> addDislike(@PathVariable int id, @PathVariable int userId) {
         ReviewDto updated = reviewService.addDislikeReview(id, userId);
         return ResponseEntity.ok(updated);
-
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public ResponseEntity<ReviewDto> deleteLike(@PathVariable int id, @PathVariable int userId) {
         ReviewDto updated = reviewService.deleteLikeReview(id, userId);
         return ResponseEntity.ok(updated);
-
     }
 
     @DeleteMapping("/{id}/dislike/{userId}")
