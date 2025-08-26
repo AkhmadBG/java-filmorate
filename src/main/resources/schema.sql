@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS user_friendships (
     CHECK (user_id <> friend_id)
 );
 
+
 CREATE TABLE IF NOT EXISTS reviews (
     review_id   BIGINT AUTO_INCREMENT PRIMARY KEY,
     content     TEXT    NOT NULL,
@@ -93,3 +94,4 @@ CREATE TABLE IF NOT EXISTS feed_event (
     timestamp  BIGINT      NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
 );
+

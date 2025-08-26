@@ -40,9 +40,9 @@ public class JdbcUserRepository implements UserRepository {
     @Override
     public User getUserById(int userId) {
         String queryUser = "SELECT u.user_id, u.name, u.email, u.login, u.birthday, uf.friend_id " +
-                "FROM users u " +
-                "LEFT JOIN user_friendships uf ON u.user_id = uf.user_id " +
-                "WHERE u.user_id = :user_id ";
+                           "FROM users u " +
+                           "LEFT JOIN user_friendships uf ON u.user_id = uf.user_id " +
+                           "WHERE u.user_id = :user_id ";
         if (!userExists(userId)) {
             throw new NotFoundException("пользователь с id: " + userId + " не найден");
         }
@@ -70,10 +70,10 @@ public class JdbcUserRepository implements UserRepository {
             log.info("UserRepository: пользователи с id: {} и {} теперь друзья", userId, friendId);
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException("UserRepository: попытка добавления в друзья пользователю с id: " + userId +
-                    " пользователя с id: " + friendId + " не удалась");
+                                        " пользователя с id: " + friendId + " не удалась");
         }
         String queryAddFeed = "INSERT INTO feed_event (user_id,event_type,operation,entity_id,timestamp)" +
-                " VALUES (:user_id,'FRIEND','ADD',:entity_id,:timestamp)";
+                              " VALUES (:user_id,'FRIEND','ADD',:entity_id,:timestamp)";
         namedJdbc.update(queryAddFeed, Map.of("user_id", userId, "entity_id", friendId, "timestamp", Instant.now().toEpochMilli()));
         log.info("UserRepository: пользователю {} добавилось событие с добавление пользователя!", userId);
     }
@@ -91,7 +91,7 @@ public class JdbcUserRepository implements UserRepository {
         namedJdbc.update(queryDeleteFriend, params);
         log.info("UserRepository: пользователи с id: {} и {} теперь не друзья", userId, friendId);
         String queryAddFeed = "INSERT INTO feed_event (user_id,event_type,operation,entity_id,timestamp)" +
-                " VALUES (:user_id,'FRIEND','REMOVE',:entity_id,:timestamp)";
+                              " VALUES (:user_id,'FRIEND','REMOVE',:entity_id,:timestamp)";
         namedJdbc.update(queryAddFeed, Map.of("user_id", userId, "entity_id", friendId, "timestamp", Instant.now().toEpochMilli()));
         log.info("UserRepository: пользователю {} добавилось событие с удалением пользователя!", userId);
     }
@@ -99,8 +99,8 @@ public class JdbcUserRepository implements UserRepository {
     @Override
     public List<User> allUsers() {
         String queryUsers = "SELECT u.*, uf.friend_id " +
-                "FROM users u " +
-                "LEFT JOIN user_friendships uf ON u.user_id = uf.user_id";
+                            "FROM users u " +
+                            "LEFT JOIN user_friendships uf ON u.user_id = uf.user_id";
         List<User> allUsers = namedJdbc.query(queryUsers, new UsersExtractor());
         log.info("UserRepository: количество зарегистрированных пользователей: {}", allUsers.size());
         return allUsers;
@@ -113,7 +113,7 @@ public class JdbcUserRepository implements UserRepository {
         }
         try {
             String queryUpdateUser = "UPDATE users SET email = :email, login = :login,  name = :name, " +
-                    "birthday = :birthday WHERE user_id = :user_id";
+                                     "birthday = :birthday WHERE user_id = :user_id";
 
             Map<String, Object> params = Map.of("user_id", user.getId(),
                     "email", user.getEmail(),
@@ -131,7 +131,7 @@ public class JdbcUserRepository implements UserRepository {
     @Override
     public User addUser(User user) {
         String query = "INSERT INTO users (email, login, name, birthday) " +
-                "VALUES (:email, :login, :name, :birthday)";
+                       "VALUES (:email, :login, :name, :birthday)";
 
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("email", user.getEmail())
@@ -167,11 +167,11 @@ public class JdbcUserRepository implements UserRepository {
     @Override
     public Map<Integer, Integer> findUsersWithCommonLikes(int userId) {
         String sql = "SELECT other_likes.user_id, COUNT(DISTINCT other_likes.film_id) as common_likes " +
-                "FROM likes current_user_likes " +
-                "JOIN likes other_likes ON current_user_likes.film_id = other_likes.film_id " +
-                "WHERE current_user_likes.user_id = :user_id AND other_likes.user_id != :user_id " +
-                "GROUP BY other_likes.user_id " +
-                "ORDER BY common_likes DESC";
+                     "FROM likes current_user_likes " +
+                     "JOIN likes other_likes ON current_user_likes.film_id = other_likes.film_id " +
+                     "WHERE current_user_likes.user_id = :user_id AND other_likes.user_id != :user_id " +
+                     "GROUP BY other_likes.user_id " +
+                     "ORDER BY common_likes DESC";
 
         Map<String, Object> params = Map.of("user_id", userId);
 
@@ -187,14 +187,14 @@ public class JdbcUserRepository implements UserRepository {
     @Override
     public List<UserEvents> userEvent(int userId) {
         String queryFeed = "SELECT " +
-                "timestamp, " +
-                "user_id, " +
-                "event_type, " +
-                "operation, " +
-                "event_id, " +
-                "entity_id " +
-                "FROM feed_event " +
-                "WHERE feed_event.user_id = :userId;";
+                           "timestamp, " +
+                           "user_id, " +
+                           "event_type, " +
+                           "operation, " +
+                           "event_id, " +
+                           "entity_id " +
+                           "FROM feed_event " +
+                           "WHERE feed_event.user_id = :userId;";
         return namedJdbc.query(queryFeed, Map.of("userId", userId), new UserEventsExtractor());
     }
 

@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.repository.dto.review;
 
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
@@ -25,4 +26,6 @@ public class ReviewDto {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Map<Long, Boolean> userReactions;
 
+
 }
+

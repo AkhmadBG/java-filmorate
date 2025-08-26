@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.mappers.reviewMap;
+package ru.yandex.practicum.filmorate.mappers.ReviewMap;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
