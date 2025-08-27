@@ -46,9 +46,8 @@ public class ReviewController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ReviewDto>> getReviewsByFilm(
-            @RequestParam(defaultValue = "0") int filmId,
-            @RequestParam(defaultValue = "10") int count) {
+    public ResponseEntity<List<ReviewDto>> getReviewsByFilm(@RequestParam(defaultValue = "0") int filmId,
+                                                            @RequestParam(defaultValue = "10") int count) {
         log.info("Получен запрос на получение отзывов по фильму {} (count = {})", filmId, count);
         return ResponseEntity.ok(reviewService.getReviewsByFilmId(filmId, count));
     }

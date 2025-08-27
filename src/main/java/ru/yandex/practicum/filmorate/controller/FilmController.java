@@ -64,7 +64,7 @@ public class FilmController {
 
     @GetMapping("/search")
     public ResponseEntity<List<FilmDto>> searchFilms(@RequestParam String query,
-                                     @RequestParam String by) {
+                                                     @RequestParam String by) {
         return ResponseEntity.ok(filmService.searchFilms(query, by));
     }
 
@@ -78,7 +78,7 @@ public class FilmController {
 
     @GetMapping("/common")
     public ResponseEntity<List<FilmDto>> getCommonFilms(@RequestParam int userId,
-                                        @RequestParam int friendId) {
+                                                        @RequestParam int friendId) {
         log.debug("FilmController: API GET /films/common userId={}, friendId={}", userId, friendId);
         return ResponseEntity.ok(filmService.getCommonFilms(userId, friendId));
     }

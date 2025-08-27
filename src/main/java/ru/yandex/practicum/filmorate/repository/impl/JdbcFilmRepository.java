@@ -381,13 +381,13 @@ public class JdbcFilmRepository implements FilmRepository {
                 "LEFT JOIN directors AS d ON fd.director_id = d.director_id " +
                 "WHERE ";
 
-        boolean searchByTitle = by.contains("title");
-        boolean searchByDirector = by.contains("director");
+        boolean searchByTitle = by != null && by.contains("title");
+        boolean searchByDirector = by != null && by.contains("director");
 
         StringBuilder sql = new StringBuilder(baseSql);
 
         if (searchByTitle && searchByDirector) {
-            sql.append(" LOWER(f.name) LIKE :query OR LOWER(d.name) LIKE :query ");
+            sql.append(" (LOWER(f.name) LIKE :query OR LOWER(d.name) LIKE :query) ");
         } else if (searchByTitle) {
             sql.append(" LOWER(f.name) LIKE :query ");
         } else if (searchByDirector) {
@@ -396,11 +396,21 @@ public class JdbcFilmRepository implements FilmRepository {
             return List.of();
         }
 
-        sql.append(" GROUP BY f.film_id ");
+        sql.append(" GROUP BY f.film_id, f.name, f.description, f.release_date, f.duration, " +
+                "r.rating_id, r.name, l.user_id, g.genre_id, g.name, d.director_id, d.name ");
 
         Map<String, Object> params = Map.of("query", "%" + query.toLowerCase() + "%");
 
         List<Film> films = namedJdbc.query(sql.toString(), params, new FilmsExtractor());
+
+        for (Film film : films) {
+            if (film.getDirectors() != null) {
+                film.setDirectors(film.getDirectors().stream()
+                        .distinct()
+                        .collect(Collectors.toList()));
+            }
+        }
+
         return films.stream()
                 .filter(Objects::nonNull)
                 .sorted(Comparator.comparingInt((Film film) ->

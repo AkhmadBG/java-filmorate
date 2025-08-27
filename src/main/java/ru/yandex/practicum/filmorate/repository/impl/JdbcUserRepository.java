@@ -187,14 +187,15 @@ public class JdbcUserRepository implements UserRepository {
     @Override
     public List<UserEvents> userEvent(int userId) {
         String queryFeed = "SELECT " +
-                "timestamp, " +
+                "event_id, " +
                 "user_id, " +
+                "entity_id, " +
                 "event_type, " +
                 "operation, " +
-                "event_id, " +
-                "entity_id " +
+                "timestamp " +
                 "FROM feed_event " +
-                "WHERE feed_event.user_id = :userId;";
+                "WHERE user_id = :userId " +
+                "ORDER BY timestamp ASC, event_id ASC";
         return namedJdbc.query(queryFeed, Map.of("userId", userId), new UserEventsExtractor());
     }
 
