@@ -6,19 +6,16 @@ import ru.yandex.practicum.filmorate.model.Review;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ReviewsExtractor implements ResultSetExtractor<List<Review>> {
+
     @Override
     public List<Review> extractData(ResultSet rs) throws SQLException, DataAccessException {
         Map<Integer, Review> reviewMap = new HashMap<>();
 
         while (rs.next()) {
-
-            int reviewId = rs.getInt("review_id");
+            Integer reviewId = rs.getInt("review_id");
 
             Review review = reviewMap.get(reviewId);
             if (review == null) {
@@ -29,19 +26,25 @@ public class ReviewsExtractor implements ResultSetExtractor<List<Review>> {
                         .userId(rs.getInt("user_id"))
                         .filmId(rs.getInt("film_id"))
                         .useful(rs.getInt("useful"))
-                        .userReactions(new HashMap<>())
+                        .userReactions(new LinkedHashMap<>())
                         .build();
                 reviewMap.put(reviewId, review);
             }
 
-            Long reactionUserId = rs.getLong("reaction_user_id");
-            if (!rs.wasNull()) {
-                Boolean isLike = rs.getBoolean("is_like");
-                review.getUserReactions().put(reactionUserId, isLike);
-            }
+            addReaction(rs, review);
         }
 
-        return new ArrayList<>(reviewMap.values());
+        List<Review> reviews = new ArrayList<>(reviewMap.values());
+        reviews.sort((r1, r2) -> r2.getUseful().compareTo(r1.getUseful()));
+        return reviews;
+    }
+
+    private void addReaction(ResultSet rs, Review review) throws SQLException {
+        Long reactionUserId = rs.getLong("reaction_user_id");
+        if (!rs.wasNull()) {
+            Boolean isLike = rs.getBoolean("is_like");
+            review.getUserReactions().put(reactionUserId, isLike);
+        }
     }
 
 }

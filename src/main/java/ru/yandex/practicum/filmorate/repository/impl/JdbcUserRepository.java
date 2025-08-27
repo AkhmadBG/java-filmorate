@@ -195,8 +195,22 @@ public class JdbcUserRepository implements UserRepository {
                 "timestamp " +
                 "FROM feed_event " +
                 "WHERE user_id = :userId " +
-                "ORDER BY timestamp ASC, event_id ASC";
-        return namedJdbc.query(queryFeed, Map.of("userId", userId), new UserEventsExtractor());
+                "ORDER BY timestamp ASC, event_id ASC";  // сортировка только по event_id
+       // ORDER BY timestamp ASC, event_id ASC
+        List<UserEvents> userId1 = namedJdbc.query(queryFeed, Map.of("userId", userId), new UserEventsExtractor());
+        System.out.println(userId1);
+        return userId1;
     }
 
+//"ORDER BY event_id ASC " +;
 }
+//
+//        SELECT event_id,
+//                user_id,
+//                entity_id,
+//                event_type,
+//                operation,
+//                timestamp
+//FROM feed_event
+//WHERE user_id = :userId
+//ORDER BY timestamp ASC, event_id ASC;

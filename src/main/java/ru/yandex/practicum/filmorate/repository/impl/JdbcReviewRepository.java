@@ -150,7 +150,6 @@ public class JdbcReviewRepository implements ReviewRepository {
 
     @Override
     public List<Review> getAllReviews(int count) {
-
         return getReviewsByFilmId(0, count);
     }
 
@@ -194,6 +193,11 @@ public class JdbcReviewRepository implements ReviewRepository {
 
             updateUseful(reviewId);
 
+            String queryAddFeed = "INSERT INTO feed_event (user_id,event_type,operation,entity_id,timestamp)" +
+                    " VALUES (:user_id,'LIKE','ADD',:entity_id,:timestamp)";
+            namedJdbc.update(queryAddFeed, Map.of("user_id", userId, "entity_id", reviewId, "timestamp", Instant.now().toEpochMilli()));
+            log.info("UserRepository: пользователю {} добавилось событие с добавление пользователя!", userId);
+
         } catch (Exception e) {
             log.error("Ошибка при добавлении реакции на отзыв {} пользователем {}: {}",
                     reviewId, userId, e.getMessage(), e);
@@ -212,6 +216,11 @@ public class JdbcReviewRepository implements ReviewRepository {
             updateUseful(reviewId);
 
             getReviewById(reviewId);
+
+            String queryAddFeed = "INSERT INTO feed_event (user_id,event_type,operation,entity_id,timestamp)" +
+                    " VALUES (:user_id,'REMOVE','ADD',:entity_id,:timestamp)";
+            namedJdbc.update(queryAddFeed, Map.of("user_id", userId, "entity_id", reviewId, "timestamp", Instant.now().toEpochMilli()));
+            log.info("UserRepository: пользователю {} добавилось событие с добавление пользователя!", userId);
 
         } catch (Exception e) {
             log.error("Ошибка при удалении реакции на отзыв {} пользователем {}: {}",
