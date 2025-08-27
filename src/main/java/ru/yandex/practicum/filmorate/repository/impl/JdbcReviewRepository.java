@@ -110,29 +110,29 @@ public class JdbcReviewRepository implements ReviewRepository {
 
         if (filmId == 0) {
             sql = """
-                    SELECT r.review_id, r.content, r.is_positive, r.user_id, r.film_id, r.useful,
-                           rr.user_id AS reaction_user_id, rr.is_like
-                    FROM (
-                        SELECT *
-                        FROM reviews
-                        ORDER BY useful DESC
-                        LIMIT :count
-                    ) r
-                    LEFT JOIN review_reactions rr ON r.review_id = rr.review_id
-                    """;
+            SELECT r.review_id, r.content, r.is_positive, r.user_id, r.film_id, r.useful,
+                   rr.user_id AS reaction_user_id, rr.is_like
+            FROM (
+                SELECT *
+                FROM reviews
+                ORDER BY useful DESC, review_id ASC
+                LIMIT :count
+            ) r
+            LEFT JOIN review_reactions rr ON r.review_id = rr.review_id
+            """;
         } else {
             sql = """
-                    SELECT r.review_id, r.content, r.is_positive, r.user_id, r.film_id, r.useful,
-                           rr.user_id AS reaction_user_id, rr.is_like
-                    FROM (
-                        SELECT *
-                        FROM reviews
-                        WHERE film_id = :film_id
-                        ORDER BY useful DESC
-                        LIMIT :count
-                    ) r
-                    LEFT JOIN review_reactions rr ON r.review_id = rr.review_id
-                    """;
+            SELECT r.review_id, r.content, r.is_positive, r.user_id, r.film_id, r.useful,
+                   rr.user_id AS reaction_user_id, rr.is_like
+            FROM (
+                SELECT *
+                FROM reviews
+                WHERE film_id = :film_id
+                ORDER BY useful DESC, review_id ASC
+                LIMIT :count
+            ) r
+            LEFT JOIN review_reactions rr ON r.review_id = rr.review_id
+            """;
             params.addValue("film_id", filmId);
         }
 
@@ -233,8 +233,6 @@ public class JdbcReviewRepository implements ReviewRepository {
             namedJdbc.update(sql, params);
             updateUseful(reviewId);
 
-
-            // Возвращаем актуальный отзыв после пересчёта
 
             getReviewById(reviewId);
 
