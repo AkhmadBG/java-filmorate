@@ -6,7 +6,8 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 @Data
 public class NewFilmRequest {
@@ -21,8 +22,8 @@ public class NewFilmRequest {
 
     private Mpa mpa;
 
-    private Set<Genre> genres;
+    private LinkedHashSet<Genre> genres;
 
-    private Set<Director> directors;
+    private List<Director> directors;
 
 }

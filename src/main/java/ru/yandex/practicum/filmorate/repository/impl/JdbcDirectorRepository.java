@@ -14,7 +14,6 @@ import ru.yandex.practicum.filmorate.repository.DirectorRepository;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -26,7 +25,7 @@ public class JdbcDirectorRepository implements DirectorRepository {
     private final DirectorRowMapper directorRowMapper;
 
     @Override
-    public boolean directorsExists(Set<Director> directors) {
+    public boolean directorsExists(List<Director> directors) {
         if (directors == null || directors.isEmpty()) {
             return true;
         }
@@ -84,7 +83,7 @@ public class JdbcDirectorRepository implements DirectorRepository {
 
     @Override
     public void updateDirector(Director director) {
-        if (!directorsExists(Set.of(director))) {
+        if (!directorsExists(List.of(director))) {
             throw new NotFoundException("JdbcDirectorRepository: режиссер с id: " + director.getId() + " не найден");
         }
         try {

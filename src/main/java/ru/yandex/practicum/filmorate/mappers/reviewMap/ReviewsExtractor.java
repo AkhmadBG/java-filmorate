@@ -6,15 +6,18 @@ import ru.yandex.practicum.filmorate.model.Review;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ReviewsExtractor implements ResultSetExtractor<List<Review>> {
-
     @Override
     public List<Review> extractData(ResultSet rs) throws SQLException, DataAccessException {
-        Map<Integer, Review> reviewMap = new LinkedHashMap<>(); // сохраняем порядок из SQL
+        Map<Integer, Review> reviewMap = new HashMap<>();
 
         while (rs.next()) {
+
             int reviewId = rs.getInt("review_id");
 
             Review review = reviewMap.get(reviewId);
@@ -33,12 +36,12 @@ public class ReviewsExtractor implements ResultSetExtractor<List<Review>> {
 
             Long reactionUserId = rs.getLong("reaction_user_id");
             if (!rs.wasNull()) {
-                Boolean isLike = rs.getObject("is_like", Boolean.class); // корректнее, чем getBoolean
+                Boolean isLike = rs.getBoolean("is_like");
                 review.getUserReactions().put(reactionUserId, isLike);
             }
         }
 
         return new ArrayList<>(reviewMap.values());
     }
-}
 
+}

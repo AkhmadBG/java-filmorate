@@ -7,8 +7,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.repository.dto.mpa.MpaDto;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Data
 public class FilmDto {
@@ -26,15 +25,15 @@ public class FilmDto {
     private int duration;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private Set<Integer> likeUserList;
+    private List<Integer> likeUserList;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private MpaDto mpa;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private Set<Genre> genres = new HashSet<>();
+    private LinkedHashSet<Genre> genres = new LinkedHashSet<>();
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private Set<Director> directors = new HashSet<>();
+    private List<Director> directors = new ArrayList<>();
 
 }

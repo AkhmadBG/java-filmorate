@@ -118,6 +118,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserEvents> getUserFeeds(int userId) {
+        if (!userRepository.userExists(userId)) {
+            throw new NotFoundException("UserServiceImpl: пользователь с id: " + userId + " не найден");
+        }
         return userRepository.userEvent(userId);
     }
 

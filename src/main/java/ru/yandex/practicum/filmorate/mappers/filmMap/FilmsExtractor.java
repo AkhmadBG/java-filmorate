@@ -28,10 +28,10 @@ public class FilmsExtractor implements ResultSetExtractor<List<Film>> {
                         .description(rs.getString("description"))
                         .releaseDate(rs.getDate("release_date").toLocalDate())
                         .duration(rs.getInt("duration"))
-                        .likeUserList(new HashSet<>())
+                        .likeUserList(new ArrayList<>())
                         .mpa(new Mpa(rs.getInt("rating_id"), rs.getString("rating_name")))
-                        .genres(new HashSet<>())
-                        .directors(new HashSet<>())
+                        .genres(new LinkedHashSet<>())
+                        .directors(new ArrayList<>())
                         .build();
                 filmMap.put(filmId, film);
             }
