@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mappers.reviewMap.ReviewMapper;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.model.UserEvents;
 import ru.yandex.practicum.filmorate.repository.FilmRepository;
 import ru.yandex.practicum.filmorate.repository.ReviewRepository;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
@@ -25,6 +26,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewRepository reviewRepository;
     private final FilmRepository filmRepository;
     private final UserRepository userRepository;
+    private final FeedEventService feedEventService;
 
     @Override
     public ReviewDto createReview(NewReviewRequest request) {
@@ -39,6 +41,8 @@ public class ReviewServiceImpl implements ReviewService {
             throw new NotFoundException("Фильм с id " + request.getFilmId() + " не найден");
         }
         Review review = reviewRepository.createReview(ReviewMapper.mapToReview(request));
+        feedEventService.addEvent(review.getUserId(), review.getReviewId(),
+                UserEvents.EventType.REVIEW, UserEvents.Operation.ADD);
         log.info("ReviewServiceImpl: новый отзыв  с id {} добавлен", review.getReviewId());
         return ReviewMapper.mapToReviewDto(review);
     }
@@ -52,6 +56,8 @@ public class ReviewServiceImpl implements ReviewService {
 
         ReviewMapper.updateReview(review, request);
         reviewRepository.updateReview(review);
+        feedEventService.addEvent(review.getUserId(), review.getReviewId(),
+                UserEvents.EventType.REVIEW, UserEvents.Operation.UPDATE);
         log.info("ReviewServiceImpl: отзыв с id {} обновлен", review.getReviewId());
         return ReviewMapper.mapToReviewDto(review);
     }
@@ -63,6 +69,8 @@ public class ReviewServiceImpl implements ReviewService {
             throw new NotFoundException("Отзыв не найден");
         }
         reviewRepository.deleteReview(reviewId);
+        feedEventService.addEvent(review.getUserId(), reviewId,
+                UserEvents.EventType.REVIEW, UserEvents.Operation.REMOVE);
         log.info("ReviewServiceImpl: отзыв с id {} удален", reviewId);
     }
 

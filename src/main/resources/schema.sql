@@ -85,11 +85,11 @@ CREATE TABLE IF NOT EXISTS review_reactions (
 );
 
 CREATE TABLE IF NOT EXISTS feed_event (
-    event_id   INTEGER AUTO_INCREMENT PRIMARY KEY,
-    user_id    INTEGER     NOT NULL,
-    event_type VARCHAR(10) NOT NULL,
-    operation  VARCHAR(10) NOT NULL,
-    entity_id  INTEGER     NOT NULL,
-    timestamp  BIGINT      NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
+  event_id   INTEGER AUTO_INCREMENT PRIMARY KEY,
+  user_id    INTEGER     NOT NULL,
+  event_type VARCHAR(10) NOT NULL CHECK (event_type IN ('LIKE', 'REVIEW', 'FRIEND')),
+  operation  VARCHAR(10) NOT NULL CHECK (operation IN ('ADD', 'REMOVE', 'UPDATE')),
+  entity_id  INTEGER     NOT NULL,
+  timestamp  BIGINT      NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
 );

@@ -13,7 +13,6 @@ import ru.yandex.practicum.filmorate.mappers.reviewMap.ReviewsExtractor;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.repository.ReviewRepository;
 
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,15 +40,8 @@ public class JdbcReviewRepository implements ReviewRepository {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         namedJdbc.update(sql, params, keyHolder, new String[]{"review_id"});
-
         review.setReviewId(Objects.requireNonNull(keyHolder.getKey()).intValue());
         log.info("Создан отзыв с ID: {}", review.getReviewId());
-
-        String queryAddFeed = "INSERT INTO feed_event (user_id, event_type, operation, entity_id, timestamp) " +
-                "VALUES (:user_id,'REVIEW','ADD', :entity_id, :timestamp)";
-        namedJdbc.update(queryAddFeed, Map.of("user_id", review.getUserId(), "entity_id", review.getReviewId(), "timestamp", Instant.now().toEpochMilli()));
-        log.info("ReviewRepository: в ленту событий добавили отзыв");
-
         return review;
 
     }
@@ -64,14 +56,10 @@ public class JdbcReviewRepository implements ReviewRepository {
         params.put("is_positive", review.getIsPositive());
         params.put("useful", review.getUseful());
         params.put("review_id", review.getReviewId());
-
         int updated = namedJdbc.update(sql, params);
         log.info("Обновлен {} отзыв с ID: {}", updated, review.getReviewId());
 
-        String queryAddFeed = "INSERT INTO feed_event (user_id, event_type, operation, entity_id, timestamp) " +
-                "VALUES (:user_id,'REVIEW','UPDATE', :entity_id, :timestamp)";
-        namedJdbc.update(queryAddFeed, Map.of("user_id", review.getUserId(), "entity_id", review.getReviewId(), "timestamp", Instant.now().toEpochMilli()));
-        log.info("ReviewRepository: в ленту событий обновили отзыв");
+
     }
 
     @Override
@@ -84,11 +72,6 @@ public class JdbcReviewRepository implements ReviewRepository {
 
         int deleted = namedJdbc.update(sql, params);
         log.info("Удален {} отзыв с ID: {}", deleted, reviewId);
-
-        String queryAddFeed = "INSERT INTO feed_event (user_id, event_type, operation, entity_id, timestamp) " +
-                "VALUES (:user_id,'REVIEW','REMOVE', :entity_id, :timestamp)";
-        namedJdbc.update(queryAddFeed, Map.of("user_id", review.getUserId(), "entity_id", review.getReviewId(), "timestamp", Instant.now().toEpochMilli()));
-        log.info("ReviewRepository: в ленту событий обновили отзыв");
     }
 
     @Override
@@ -103,7 +86,6 @@ public class JdbcReviewRepository implements ReviewRepository {
 
         if (filmId == 0) {
             sql = """
-
             SELECT r.review_id, r.content, r.is_positive, r.user_id, r.film_id, r.useful,
                    rr.user_id AS reaction_user_id, rr.is_like
             FROM (
@@ -126,7 +108,7 @@ public class JdbcReviewRepository implements ReviewRepository {
                 LIMIT :count
             ) r
             LEFT JOIN review_reactions rr ON r.review_id = rr.review_id
-            """;
+           """;
 
             params.addValue("film_id", filmId);
         }

@@ -6,21 +6,22 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class UserEvents {
-
-    private Long timestamp;
-
+    private long timestamp;
     private int userId;
-
-    private String eventType;
-
-    private String operation;
-
+    private EventType eventType;
+    private Operation operation;
     private int eventId;
-
     private int entityId;
 
+    public enum EventType {
+        LIKE, REVIEW, FRIEND
+    }
+
+    public enum Operation {
+        ADD, REMOVE, UPDATE
+    }
 }
