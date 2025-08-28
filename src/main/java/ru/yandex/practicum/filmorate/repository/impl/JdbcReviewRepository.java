@@ -85,8 +85,7 @@ public class JdbcReviewRepository implements ReviewRepository {
         params.addValue("count", count);
 
         if (filmId == 0) {
-            sql = """
-                    
+            sql = """      
                     SELECT r.review_id, r.content, r.is_positive, r.user_id, r.film_id, r.useful,
                            rr.user_id AS reaction_user_id, rr.is_like
                     FROM (
