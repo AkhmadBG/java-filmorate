@@ -68,15 +68,16 @@ public class JdbcUserRepository implements UserRepository {
             Map<String, Object> params = Map.of("user_id", userId, "friend_id", friendId);
             namedJdbc.update(queryFriend, params);
             log.info("UserRepository: пользователи с id: {} и {} теперь друзья", userId, friendId);
+
+            String queryAddFeed = "INSERT INTO feed_event (user_id,event_type,operation,entity_id,timestamp)" +
+                    " VALUES (:user_id,'FRIEND','ADD',:entity_id,:timestamp)";
+            namedJdbc.update(queryAddFeed,Map.of("user_id",userId,"entity_id",friendId,"timestamp", Instant.now().toEpochMilli()));
+            log.info("UserRepository: пользователю {} добавилось событие с добавление пользователя!",userId);
+
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException("UserRepository: попытка добавления в друзья пользователю с id: " + userId +
                     " пользователя с id: " + friendId + " не удалась");
         }
-
-        String queryAddFeed = "INSERT INTO feed_event (user_id,event_type,operation,entity_id,timestamp)" +
-                " VALUES (:user_id,'FRIEND','ADD',:entity_id,:timestamp)";
-        namedJdbc.update(queryAddFeed, Map.of("user_id", userId, "entity_id", friendId, "timestamp", Instant.now().toEpochMilli()));
-        log.info("UserRepository: пользователю {} добавилось событие с добавление пользователя!", userId);
     }
 
     @Override
@@ -94,8 +95,8 @@ public class JdbcUserRepository implements UserRepository {
 
         String queryAddFeed = "INSERT INTO feed_event (user_id,event_type,operation,entity_id,timestamp)" +
                 " VALUES (:user_id,'FRIEND','REMOVE',:entity_id,:timestamp)";
-        namedJdbc.update(queryAddFeed, Map.of("user_id", userId, "entity_id", friendId, "timestamp", Instant.now().toEpochMilli()));
-        log.info("UserRepository: пользователю {} добавилось событие с удалением пользователя!", userId);
+        namedJdbc.update(queryAddFeed,Map.of("user_id",userId,"entity_id",friendId,"timestamp", Instant.now().toEpochMilli()));
+        log.info("UserRepository: пользователю {} добавилось событие с удалением пользователя!",userId);
     }
 
     @Override
@@ -189,18 +190,15 @@ public class JdbcUserRepository implements UserRepository {
     @Override
     public List<UserEvents> userEvent(int userId) {
         String queryFeed = "SELECT " +
-                "event_id, " +
+                "timestamp, " +
                 "user_id, " +
-                "entity_id, " +
                 "event_type, " +
                 "operation, " +
-                "timestamp " +
+                "event_id, " +
+                "entity_id " +
                 "FROM feed_event " +
-                "WHERE user_id = :userId " +
-                "ORDER BY timestamp ASC"; //, event_id ASC
-        List<UserEvents> userId1 = namedJdbc.query(queryFeed, Map.of("userId", userId), new UserEventsExtractor());
-        System.out.println(userId1);
-        return userId1;
+                "WHERE feed_event.user_id = :userId;";
+        return namedJdbc.query(queryFeed, Map.of("userId", userId), new UserEventsExtractor());
     }
 
 }

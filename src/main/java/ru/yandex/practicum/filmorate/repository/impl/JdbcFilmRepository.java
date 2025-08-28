@@ -269,7 +269,8 @@ public class JdbcFilmRepository implements FilmRepository {
         boolean hasWhereClause = false;
 
         if (genreId != null) {
-            query.append(" WHERE g.genre_id = :genreId");
+            query.append(" WHERE f.film_id IN " +
+                    "(SELECT fg2.film_id FROM films_genres fg2 WHERE fg2.genre_id = :genreId)");
             param.put("genreId", genreId);
             hasWhereClause = true;
         }
