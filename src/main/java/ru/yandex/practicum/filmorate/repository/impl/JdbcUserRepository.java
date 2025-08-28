@@ -72,6 +72,7 @@ public class JdbcUserRepository implements UserRepository {
             throw new NotFoundException("UserRepository: попытка добавления в друзья пользователю с id: " + userId +
                     " пользователя с id: " + friendId + " не удалась");
         }
+
         String queryAddFeed = "INSERT INTO feed_event (user_id,event_type,operation,entity_id,timestamp)" +
                 " VALUES (:user_id,'FRIEND','ADD',:entity_id,:timestamp)";
         namedJdbc.update(queryAddFeed, Map.of("user_id", userId, "entity_id", friendId, "timestamp", Instant.now().toEpochMilli()));
@@ -90,6 +91,7 @@ public class JdbcUserRepository implements UserRepository {
         Map<String, Object> params = Map.of("user_id", userId, "friend_id", friendId);
         namedJdbc.update(queryDeleteFriend, params);
         log.info("UserRepository: пользователи с id: {} и {} теперь не друзья", userId, friendId);
+
         String queryAddFeed = "INSERT INTO feed_event (user_id,event_type,operation,entity_id,timestamp)" +
                 " VALUES (:user_id,'FRIEND','REMOVE',:entity_id,:timestamp)";
         namedJdbc.update(queryAddFeed, Map.of("user_id", userId, "entity_id", friendId, "timestamp", Instant.now().toEpochMilli()));
@@ -195,22 +197,10 @@ public class JdbcUserRepository implements UserRepository {
                 "timestamp " +
                 "FROM feed_event " +
                 "WHERE user_id = :userId " +
-                "ORDER BY timestamp ASC, event_id ASC";  // сортировка только по event_id
-       // ORDER BY timestamp ASC, event_id ASC
+                "ORDER BY timestamp ASC"; //, event_id ASC
         List<UserEvents> userId1 = namedJdbc.query(queryFeed, Map.of("userId", userId), new UserEventsExtractor());
         System.out.println(userId1);
         return userId1;
     }
 
-//"ORDER BY event_id ASC " +;
 }
-//
-//        SELECT event_id,
-//                user_id,
-//                entity_id,
-//                event_type,
-//                operation,
-//                timestamp
-//FROM feed_event
-//WHERE user_id = :userId
-//ORDER BY timestamp ASC, event_id ASC;

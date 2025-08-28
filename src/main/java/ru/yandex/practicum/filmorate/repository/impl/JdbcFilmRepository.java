@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mappers.filmMap.CommonFilmsExtractor;
 import ru.yandex.practicum.filmorate.mappers.filmMap.FilmExtractor;
@@ -224,6 +225,7 @@ public class JdbcFilmRepository implements FilmRepository {
         String queryAddLike = "INSERT INTO likes (film_id, user_id) VALUES (:film_id, :user_id)";
         namedJdbc.update(queryAddLike, Map.of("film_id", filmId, "user_id", userId));
         log.info("FilmRepository: к фильму с id: {} добавлен like от пользователя с id: {}", filmId, userId);
+
         String queryAddFeed = "INSERT INTO feed_event (user_id, event_type, operation, entity_id, timestamp) " +
                 "VALUES (:user_id,'LIKE','ADD', :entity_id, :timestamp)";
         namedJdbc.update(queryAddFeed, Map.of("user_id", userId, "entity_id", filmId, "timestamp", Instant.now().toEpochMilli()));
@@ -235,6 +237,7 @@ public class JdbcFilmRepository implements FilmRepository {
         String queryRemoveLike = "DELETE FROM likes WHERE film_id = :film_id AND user_id = :user_id";
         namedJdbc.update(queryRemoveLike, Map.of("film_id", filmId, "user_id", userId));
         log.info("FilmRepository: у фильма с id: {} удален like от пользователя с id: {}", filmId, userId);
+
         String queryAddFeed = "INSERT INTO feed_event (user_id, event_type, operation, entity_id, timestamp) " +
                 "VALUES (:user_id,'LIKE','REMOVE', :entity_id, :timestamp)";
         namedJdbc.update(queryAddFeed, Map.of("user_id", userId, "entity_id", filmId, "timestamp", Instant.now().toEpochMilli()));

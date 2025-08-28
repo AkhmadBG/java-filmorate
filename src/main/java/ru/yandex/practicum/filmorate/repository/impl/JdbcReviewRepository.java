@@ -88,7 +88,7 @@ public class JdbcReviewRepository implements ReviewRepository {
         String queryAddFeed = "INSERT INTO feed_event (user_id, event_type, operation, entity_id, timestamp) " +
                 "VALUES (:user_id,'REVIEW','REMOVE', :entity_id, :timestamp)";
         namedJdbc.update(queryAddFeed, Map.of("user_id", review.getUserId(), "entity_id", review.getReviewId(), "timestamp", Instant.now().toEpochMilli()));
-        log.info("ReviewRepository: в ленту событий обновили отзыв");
+        log.info("ReviewRepository: в ленту событий добавлено удаление отзыва");
     }
 
     @Override
@@ -189,14 +189,14 @@ public class JdbcReviewRepository implements ReviewRepository {
             } else {
                 String insertSql = "INSERT INTO review_reactions (review_id, user_id, is_like) VALUES (:review_id, :user_id, :is_like)";
                 namedJdbc.update(insertSql, params);
+
+//                String queryAddFeed = "INSERT INTO feed_event (user_id, event_type, operation, entity_id, timestamp) " +
+//                        "VALUES (:user_id,'LIKE','ADD', :entity_id, :timestamp)";
+//                namedJdbc.update(queryAddFeed, Map.of("user_id", userId, "entity_id", reviewId, "timestamp", Instant.now().toEpochMilli()));
+//                log.info("ReviewRepository: в ленту событий добавлена реакция на review");
             }
 
             updateUseful(reviewId);
-
-            String queryAddFeed = "INSERT INTO feed_event (user_id,event_type,operation,entity_id,timestamp)" +
-                    " VALUES (:user_id,'LIKE','ADD',:entity_id,:timestamp)";
-            namedJdbc.update(queryAddFeed, Map.of("user_id", userId, "entity_id", reviewId, "timestamp", Instant.now().toEpochMilli()));
-            log.info("UserRepository: пользователю {} добавилось событие с добавление пользователя!", userId);
 
         } catch (Exception e) {
             log.error("Ошибка при добавлении реакции на отзыв {} пользователем {}: {}",
@@ -217,10 +217,10 @@ public class JdbcReviewRepository implements ReviewRepository {
 
             getReviewById(reviewId);
 
-            String queryAddFeed = "INSERT INTO feed_event (user_id,event_type,operation,entity_id,timestamp)" +
-                    " VALUES (:user_id,'REMOVE','ADD',:entity_id,:timestamp)";
-            namedJdbc.update(queryAddFeed, Map.of("user_id", userId, "entity_id", reviewId, "timestamp", Instant.now().toEpochMilli()));
-            log.info("UserRepository: пользователю {} добавилось событие с добавление пользователя!", userId);
+//            String queryAddFeed = "INSERT INTO feed_event (user_id, event_type, operation, entity_id, timestamp) " +
+//                    "VALUES (:user_id,'LIKE','REMOVE', :entity_id, :timestamp)";
+//            namedJdbc.update(queryAddFeed, Map.of("user_id", userId, "entity_id", reviewId, "timestamp", Instant.now().toEpochMilli()));
+//            log.info("ReviewRepository: в ленту событий добавлена реакция на review");
 
         } catch (Exception e) {
             log.error("Ошибка при удалении реакции на отзыв {} пользователем {}: {}",
