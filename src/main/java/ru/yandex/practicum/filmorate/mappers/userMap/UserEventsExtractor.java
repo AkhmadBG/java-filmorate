@@ -18,8 +18,8 @@ public class UserEventsExtractor implements ResultSetExtractor<List<UserEvents>>
             UserEvents userEvents = UserEvents.builder()
                     .timestamp(rs.getLong("timestamp"))
                     .userId(rs.getInt("user_id"))
-                    .eventType(rs.getString("event_type"))
-                    .operation(rs.getString("operation"))
+                    .eventType(UserEvents.EventType.valueOf(rs.getString("event_type")))
+                    .operation(UserEvents.Operation.valueOf(rs.getString("operation")))
                     .eventId(rs.getInt("event_id"))
                     .entityId(rs.getInt("entity_id"))
                     .build();

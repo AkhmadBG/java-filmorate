@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mappers.filmMap.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.FilmSortBy;
+import ru.yandex.practicum.filmorate.model.UserEvents;
 import ru.yandex.practicum.filmorate.repository.FilmRepository;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
 import ru.yandex.practicum.filmorate.repository.dto.film.FilmDto;
@@ -27,6 +28,7 @@ public class FilmServiceImpl implements FilmService {
 
     private final FilmRepository filmRepository;
     private final UserRepository userRepository;
+    private final FeedEventService feedEventService;
 
     @Override
     public FilmDto addFilm(NewFilmRequest newFilmRequest) {
@@ -63,6 +65,7 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public void addLike(int filmId, int userId) {
         filmRepository.addLike(filmId, userId);
+        feedEventService.addEvent(userId, filmId, UserEvents.EventType.LIKE, UserEvents.Operation.ADD);
         log.info("FilmServiceImpl: Пользователю с id {} нравится фильм с id: {}", userId, filmId);
     }
 
@@ -75,6 +78,7 @@ public class FilmServiceImpl implements FilmService {
             throw new NotFoundException("пользователь с id: " + userId + " не найден");
         }
         filmRepository.removeLike(filmId, userId);
+        feedEventService.addEvent(userId, filmId, UserEvents.EventType.LIKE, UserEvents.Operation.REMOVE);
         log.info("FilmServiceImpl: Пользователю с id {} перестал нравится фильм с id: {}", userId, filmId);
     }
 

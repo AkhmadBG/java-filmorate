@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final FeedEventService feedEventService;
 
     @Override
     public UserDto addUser(NewUserRequest newUserRequest) {
@@ -70,6 +71,7 @@ public class UserServiceImpl implements UserService {
             throw new ValidationException("UserServiceImpl: попытка добавления пользователя к себе в друзья");
         }
         userRepository.addFriendShips(userId, friendId);
+        feedEventService.addEvent(userId, friendId, UserEvents.EventType.FRIEND, UserEvents.Operation.ADD);
         log.info("UserServiceImpl: пользователи с id " + userId + " и " + friendId + "теперь друзья");
     }
 
@@ -79,6 +81,7 @@ public class UserServiceImpl implements UserService {
             throw new ValidationException("UserServiceImpl: попытка добавления пользователя к себе в друзья");
         }
         userRepository.deleteFriendShip(userId, friendId);
+        feedEventService.addEvent(userId, friendId, UserEvents.EventType.FRIEND, UserEvents.Operation.REMOVE);
         log.info("UserServiceImpl: пользователи с id " + userId + " и " + friendId + "больше не друзья");
     }
 

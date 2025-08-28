@@ -28,4 +28,6 @@ public interface UserRepository {
 
     List<UserEvents> userEvent(int userId);
 
+    void addFeedEvent(int userId, int entityId, UserEvents.EventType eventType, UserEvents.Operation operation);
+
 }
