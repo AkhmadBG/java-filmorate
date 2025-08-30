@@ -5,8 +5,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -30,11 +29,14 @@ public class Film {
     private int duration;
 
     @Builder.Default
-    private Set<Integer> likeUserList = new HashSet<>();
+    private List<Integer> likeUserList = new ArrayList<>();
 
     private Mpa mpa;
 
     @Builder.Default
-    private Set<Genre> genres = new HashSet<>();
+    private LinkedHashSet<Genre> genres = new LinkedHashSet<>();
+
+    @Builder.Default
+    private List<Director> directors = new ArrayList<>();
 
 }

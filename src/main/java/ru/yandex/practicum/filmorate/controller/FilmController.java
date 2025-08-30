@@ -4,12 +4,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.FilmSortBy;
+import ru.yandex.practicum.filmorate.repository.dto.film.FilmDto;
+import ru.yandex.practicum.filmorate.repository.dto.film.NewFilmRequest;
+import ru.yandex.practicum.filmorate.repository.dto.film.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.repository.dto.FilmDto;
-import ru.yandex.practicum.filmorate.repository.dto.NewFilmRequest;
-import ru.yandex.practicum.filmorate.repository.dto.UpdateFilmRequest;
 
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RestController
@@ -57,13 +59,48 @@ public class FilmController {
                                            @PathVariable(value = "userId") int userId) {
         filmService.removeLike(filmId, userId);
         log.info("FilmController: пользователю с id {} перестал нравится фильм с id: {}", userId, filmId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<FilmDto>> searchFilms(@RequestParam String query,
+                                                     @RequestParam String by) {
+        return ResponseEntity.ok(filmService.searchFilms(query, by));
+    }
+
+    @DeleteMapping("/{filmId}")
+    public ResponseEntity<Void> deleteFilm(@PathVariable int filmId) {
+        filmService.deleteFilm(filmId);
+        log.info("FilmController: фильм с id: {} удалён", filmId);
         return ResponseEntity.noContent().build();
+
+    }
+
+    @GetMapping("/common")
+    public ResponseEntity<List<FilmDto>> getCommonFilms(@RequestParam int userId,
+                                                        @RequestParam int friendId) {
+        log.debug("FilmController: API GET /films/common userId={}, friendId={}", userId, friendId);
+        return ResponseEntity.ok(filmService.getCommonFilms(userId, friendId));
+    }
+
+    @GetMapping("/director/{directorId}")
+    public ResponseEntity<List<FilmDto>> getFilmsByDirector(@PathVariable(value = "directorId") int directorId,
+                                                            @RequestParam(value = "sortBy") String sortByString) {
+        FilmSortBy sortBy = switch (sortByString) {
+            case "likes" -> FilmSortBy.LIKES;
+            case "year" -> FilmSortBy.YEAR;
+            default -> throw new RuntimeException("Параметр сортировки " + sortByString + " указан неверно");
+        };
+        log.info("FilmController: запрошен список фильмов режиссера с id = {} и отсортированный по {}", directorId, sortBy);
+        return ResponseEntity.ok(filmService.getFilmsByDirector(directorId, sortBy));
     }
 
     @GetMapping("/popular")
-    public ResponseEntity<Set<FilmDto>> getTopFilms(@RequestParam(defaultValue = "10") int count) {
-        log.info("FilmController: запрошен топ {} фильмов", count);
-        return ResponseEntity.ok(filmService.getTopFilms(count));
+    public ResponseEntity<Set<FilmDto>> getTopFilms(@RequestParam(defaultValue = "10") int count,
+                                                    @RequestParam(required = false) Integer genreId,
+                                                    @RequestParam(required = false) Integer year) {
+        log.info("FilmController: запрошен топ {} фильмов с параметрами({},{})", count, genreId, year);
+        return ResponseEntity.ok(filmService.getTopFilms(count, genreId, year));
     }
 
 }

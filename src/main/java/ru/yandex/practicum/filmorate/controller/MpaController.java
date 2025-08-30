@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.yandex.practicum.filmorate.repository.dto.mpa.MpaDto;
 import ru.yandex.practicum.filmorate.service.MpaServise;
-import ru.yandex.practicum.filmorate.repository.dto.MpaDto;
 
 import java.util.Collection;
 

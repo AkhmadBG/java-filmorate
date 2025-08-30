@@ -7,14 +7,11 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.mappers.GenreRowMapper;
+import ru.yandex.practicum.filmorate.mappers.genreMap.GenreRowMapper;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.repository.GenreRepository;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -26,7 +23,7 @@ public class JdbcGenreRepository implements GenreRepository {
     private final GenreRowMapper genreRowMapper;
 
     @Override
-    public boolean genreExists(Set<Genre> genres) {
+    public boolean genreExists(LinkedHashSet<Genre> genres) {
         if (genres == null || genres.isEmpty()) {
             return true;
         }

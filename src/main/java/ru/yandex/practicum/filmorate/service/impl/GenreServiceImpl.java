@@ -3,11 +3,11 @@ package ru.yandex.practicum.filmorate.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.mappers.GenreMapper;
+import ru.yandex.practicum.filmorate.mappers.genreMap.GenreMapper;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.repository.GenreRepository;
+import ru.yandex.practicum.filmorate.repository.dto.genre.GenreDto;
 import ru.yandex.practicum.filmorate.service.GenreServise;
-import ru.yandex.practicum.filmorate.repository.dto.GenreDto;
 
 import java.util.Collection;
 import java.util.stream.Collectors;

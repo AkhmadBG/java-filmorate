@@ -3,11 +3,11 @@ package ru.yandex.practicum.filmorate.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.mappers.MpaMapper;
+import ru.yandex.practicum.filmorate.mappers.mpaMap.MpaMapper;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.repository.MpaRepository;
+import ru.yandex.practicum.filmorate.repository.dto.mpa.MpaDto;
 import ru.yandex.practicum.filmorate.service.MpaServise;
-import ru.yandex.practicum.filmorate.repository.dto.MpaDto;
 
 import java.util.Collection;
 import java.util.stream.Collectors;

@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.util;
 
 import lombok.experimental.UtilityClass;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.repository.dto.NewUserRequest;
+import ru.yandex.practicum.filmorate.repository.dto.user.NewUserRequest;
 
 import java.time.LocalDate;
 
@@ -24,6 +24,10 @@ public class UserValidator {
 
         if (newUserRequest.getBirthday().isAfter(LocalDate.now())) {
             throw new ValidationException("UserValidator: дата рождения не может быть в будущем");
+        }
+
+        if (newUserRequest.getName() == null || newUserRequest.getName().isBlank()) {
+            newUserRequest.setName(newUserRequest.getLogin());
         }
 
     }
